@@ -9,13 +9,14 @@
 #include <unistd.h>
 #include <algorithm>
 
+template <int maxDuration>
 class ExponentialBackoff {
 private:
     int duration = 20;
 public:
     void backoff() {
         usleep(duration);
-        duration = std::min(duration * 2, 250);
+        duration = std::min(duration * 2, maxDuration);
     }
 };
 
