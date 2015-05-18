@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <algorithm>
 
-template <int maxDuration>
+template <int maxDuration = 250>
 class ExponentialBackoff {
 private:
     int duration = 20;
