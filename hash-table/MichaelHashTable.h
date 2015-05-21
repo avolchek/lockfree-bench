@@ -9,7 +9,7 @@
 #include "../hp/HP.h"
 #include "../helpers/ExponentialBackoff.h"
 
-template< typename Item, typename ListSet = LockFreeListSetWithPool<Item, HP, ExponentialBackoff<>>>
+template< typename Item, typename ListSet = LockFreeListSetWithPool<Item, HP, ConstantBackoff<>>>
 class MichaelHashTable {
 private:
     ListSet *buckets;
