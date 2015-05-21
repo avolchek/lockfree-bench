@@ -371,19 +371,20 @@ void benchmarkQueue() {
     ofstream cvsFile("queue-results.cvs");
 
     vector< pair<string, function<double(int)>>> testData {
-            make_pair("lock-free queue", testQueue<MichaelScottQueue<int, HP>>),
+            /*make_pair("lock-free queue", testQueue<MichaelScottQueue<int, HP>>),
             make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<int, HP>>),
             make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<int>>),
             make_pair("cds::container::msqueue", testQueue<cds::container::MSQueue<cds::gc::HP, int>>),
             make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<int>>),
             make_pair("std::queue with mutex", testQueue<StdQueueWithLock<int, std::mutex>>),
             make_pair("std::queue with spin-lock", testQueue<StdQueueWithLock<int, SpinLock>>),
+            */
 
-             /*
             make_pair("[no backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP>>),
             make_pair("[constant backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff>>),
-            make_pair("[exponential backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ExponentialBackoff>>),
-            make_pair("[random backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, RandomBackoff>>),*/
+            make_pair("[exponential backoff 1024]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ExponentialBackoff<1024>>>),
+            make_pair("[exponential backoff 256]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ExponentialBackoff<256>>>),
+            make_pair("[random backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, RandomBackoff>>),
     };
 
     cvsFile << '\"' << "threads cnt" << '\"';
@@ -393,7 +394,7 @@ void benchmarkQueue() {
     cvsFile << endl;
 
 
-    for (int threadCnt = 1; threadCnt <= 90; ) {
+    for (int threadCnt = 1; threadCnt <= 256; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
@@ -407,9 +408,9 @@ void benchmarkQueue() {
         cvsFile << endl;
 
         if (threadCnt > 16) {
-            threadCnt += 4;
+            threadCnt += 16;
         } else {
-            threadCnt += 2;
+            threadCnt += 4;
         }
     }
 
