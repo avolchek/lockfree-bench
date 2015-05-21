@@ -475,8 +475,8 @@ int main() {
 
 
 
-        benchmarkListSet();
-        //benchmarkQueue();
+        //benchmarkListSet();
+        benchmarkQueue();
         //benchmarkSet();
 
     }
