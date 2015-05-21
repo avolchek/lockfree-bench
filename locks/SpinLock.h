@@ -19,7 +19,7 @@ public:
     }
 
     void lock() {
-        ConstantBackoff bkf;
+        ConstantBackoff<> bkf;
         while (f.test_and_set(std::memory_order::memory_order_release)) {
             bkf.backoff();
         }

@@ -40,7 +40,7 @@ public:
         }
         newNode->data = x;
 
-        ConstantBackoff bkf;
+        ConstantBackoff<> bkf;
 
         while (true) {
             StackNode *cHead;
@@ -62,7 +62,7 @@ public:
     }
 
     bool pop(T &res) {
-        ConstantBackoff bfk;
+        ConstantBackoff<> bfk;
 
         while (true) {
             StackNode *cHead;
