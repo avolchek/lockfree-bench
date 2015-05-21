@@ -39,7 +39,7 @@ class LockFreeListSetWithPool {
             if (v) {
                 TNodePtr nxt = v->nxt.load(std::memory_order_acquire);
 
-                if (poolHead.compare_exchange_strong(v, nxt, std::memory_order_release, std::memory_order_relaxed)) {
+                if (poolHead.compare_exchange_weak(v, nxt, std::memory_order_release, std::memory_order_relaxed)) {
                     return TNodePtr(v.getPtr(), v.getNextTag());
                 }
             } else {
@@ -56,7 +56,7 @@ class LockFreeListSetWithPool {
             TNodePtr v = poolHead.load(std::memory_order_acquire);
             p->nxt.store(v, std::memory_order_release);
 
-            if (poolHead.compare_exchange_strong(v, p, std::memory_order_release, std::memory_order_relaxed)) {
+            if (poolHead.compare_exchange_weak(v, p, std::memory_order_release, std::memory_order_relaxed)) {
                 break;
             }
 
