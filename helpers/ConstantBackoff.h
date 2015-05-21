@@ -10,14 +10,15 @@
 #include <algorithm>
 #include <thread>
 
+template<int duration = 250>
 class ConstantBackoff {
-    int duration;
-public:
-    ConstantBackoff() {
-        duration = 25;
-    }
 
-    void backoff();
+public:
+
+
+    void backoff() {
+        usleep(duration);
+    }
 };
 
 

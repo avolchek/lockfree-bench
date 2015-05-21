@@ -380,11 +380,17 @@ void benchmarkQueue() {
             make_pair("std::queue with spin-lock", testQueue<StdQueueWithLock<int, SpinLock>>),
             */
 
+            make_pair("[constant backoff 100]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff<100>>>),
+            make_pair("[constant backoff 250]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff<250>>>),
+            make_pair("[constant backoff 350]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff<350>>>),
+            make_pair("[constant backoff 450]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff<450>>>),
+            make_pair("[constant backoff 550]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff<550>>>),
+            /*
             make_pair("[no backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP>>),
             make_pair("[constant backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff>>),
             make_pair("[exponential backoff 1024]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ExponentialBackoff<1024>>>),
             make_pair("[exponential backoff 256]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ExponentialBackoff<256>>>),
-            make_pair("[random backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, RandomBackoff>>),
+            make_pair("[random backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, RandomBackoff>>),*/
     };
 
     cvsFile << '\"' << "threads cnt" << '\"';
