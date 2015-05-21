@@ -13,7 +13,11 @@ include_directories(./intel-threading-blocks/include/)
 find_package(Boost COMPONENTS thread REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
-link_directories(./intel-threading-blocks/build/linux_intel64_gcc_cc4.9.2_libc2.21_kernel3.19.0_release/)
+
+
+file(GLOB TBB_BUILD_DIR ./intel-threading-blocks/build/*_release/)
+
+link_directories(${TBB_BUILD_DIR})
 
 if(Boost_FOUND)
 
