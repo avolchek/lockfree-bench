@@ -9,18 +9,28 @@
 #include "../hp/HP.h"
 #include "../helpers/ExponentialBackoff.h"
 
-template< typename Item, int bucketsCnt = 256, typename ListSet = LockFreeListSetWithPool<Item, HP, ExponentialBackoff<>>>
+template< typename Item, typename ListSet = LockFreeListSetWithPool<Item, HP, ExponentialBackoff<>>>
 class MichaelHashTable {
 private:
     ListSet *buckets;
     std::hash<Item> hasher;
 
-    int bIdx(Item x) {
-        return hasher(x) % bucketsCnt;
+    size_t maxItemsCount, maxLoadFactor;
+    size_t bucketsCnt;
+
+    size_t bIdx(Item x) {
+        return hasher(x) & (bucketsCnt - 1);
     }
 
 public:
-    MichaelHashTable() {
+    MichaelHashTable(size_t maxItemsCount, size_t maxLoadFactor)
+        :maxItemsCount(maxItemsCount), maxLoadFactor(maxLoadFactor) {
+        bucketsCnt = maxItemsCount / maxLoadFactor + 1;
+        size_t p = 1;
+        while (p < bucketsCnt) {
+            p *= 2;
+        }
+        bucketsCnt = p;
 
         buckets = new ListSet[bucketsCnt];
     }

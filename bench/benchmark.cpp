@@ -36,6 +36,8 @@
 #include <cds/container/fcqueue.h>
 #include <cds/urcu/general_buffered.h>
 #include <tbb/concurrent_queue.h>
+#include <cds/container/michael_set.h>
+#include "../hash-table/CDSMichaelSetWrapper.h"
 
 std::atomic<bool> isRunning;
 
@@ -233,10 +235,10 @@ void workerSetProc(Container *c, int *operationsCnt) {
         int op = rand() % 100;
         int x = rand();
 
-        if (op < 20) {
+        if (op < 5) {
             added.push_back(x);
             c->insert(x);
-        } else if (op < 40) {
+        } else if (op < 5) {
             if (!added.empty()) {
                 c->erase(added.back());
                 added.pop_back();
@@ -251,17 +253,22 @@ void workerSetProc(Container *c, int *operationsCnt) {
 }
 
 template<typename Container>
-double testSet(int threadsCnt) {
+double testSet(int threadsCnt, int maxItemsCount, int maxLoadFactor) {
     const int testIter = 2;
-    const int runtime = 3;
+    const int runtime = 2;
+    const int initialItemsCount = 100000;
 
     double res = 0.0;
 
     for (int iter = 0; iter < testIter; iter++) {
-        std::cerr << "iter " << iter << std::endl;
+        //std::cerr << "iter " << iter << std::endl;
         HP::getInstance()->attachThread();
 
-        Container *c = new Container();
+        Container *c = new Container(maxItemsCount, maxLoadFactor);
+
+        for (int i = 0; i < initialItemsCount; i++) {
+            c->insert(rand());
+        }
 
         isRunning.store(false, std::memory_order_release);
 
@@ -307,12 +314,10 @@ void benchmarkStack() {
 void benchmarkListSet() {
     using namespace std;
 
-    ofstream cvsFile("list-set-results-backoff.cvs");
+    ofstream cvsFile("list-set.cvs");
 
     vector< pair<string, function<double(int)>>> testData {
-            /*make_pair("lock-free list with pool", testList<LockFreeListSetWithPool<int, HP>>),
-            make_pair("cds::container::michaellist", testList<LibCDSMichaelListWrapper<int>>),
-            /*make_pair("coarse-lock list", testList<CoarseLockListSet<int, std::mutex>>),
+            make_pair("coarse-lock list", testList<CoarseLockListSet<int, std::mutex>>),
             make_pair("coarse-lock list with spin-lock", testList<CoarseLockListSet<int, SpinLock>>),
             make_pair("lock-free list", testList<LockFreeListSet<int, HP>>),
             make_pair("lock-free list with pool", testList<LockFreeListSetWithPool<int, HP>>),
@@ -320,7 +325,7 @@ void benchmarkListSet() {
             make_pair("optimistic-lock list", testList<OptimisticLockListSet<int, HP, std::mutex>>),
             make_pair("optimistic-lock with spin-lock list", testList<OptimisticLockListSet<int, HP, SpinLock>>),
             make_pair("optimistic-lock lazy delete", testList<OptimisticLockListSet<int, HP, std::mutex>>),
-            make_pair("optimistic-lock lazy delete with spin-lock list", testList<OptimisticLockListSet<int, HP, SpinLock>>),*/
+            make_pair("optimistic-lock lazy delete with spin-lock list", testList<OptimisticLockListSet<int, HP, SpinLock>>),
             /*make_pair("[no backoff]lock-free list", testList<LockFreeListSet<int, HP>>),
             make_pair("[constant backoff]lock-free list", testList<LockFreeListSet<int, HP, ConstantBackoff>>),
             make_pair("[exponential backoff]lock-free list", testList<LockFreeListSet<int, HP, ExponentialBackoff>>),
@@ -338,7 +343,7 @@ void benchmarkListSet() {
     cvsFile << endl;
 
 
-    for (int threadCnt = 2; threadCnt <= 128; threadCnt += 3) {
+    for (int threadCnt = 1; threadCnt <= 90; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
@@ -349,6 +354,12 @@ void benchmarkListSet() {
         }
 
         cvsFile << endl;
+
+        if (threadCnt > 8) {
+            threadCnt += 4;
+        } else {
+            threadCnt++;
+        }
     }
 
     cvsFile.close();
@@ -360,17 +371,6 @@ void benchmarkQueue() {
     ofstream cvsFile("queue-results.cvs");
 
     vector< pair<string, function<double(int)>>> testData {
-            make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ExponentialBackoff<>>>),
-            make_pair("tbb::concurent_queue with std::allocator", testQueue<TBBQueueWrapper<int, std::allocator<int>>>),
-            make_pair("tbb::concurent_queue with tbb::cache_aligned_allocator",
-                      testQueue<TBBQueueWrapper<int, tbb::cache_aligned_allocator<int>>>),
-            make_pair("tbb::concurent_queue with tbb::scalable_allocator",
-                      testQueue<TBBQueueWrapper<int, tbb::scalable_allocator<int>>>),
-            /*make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<int>>),
-            make_pair("cds::container::msqueue", testQueue<cds::container::MSQueue<cds::gc::HP, int>>),
-            make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<int>>),
-            make_pair("std::queue with mutex", testQueue<StdQueueWithLock<int, std::mutex>>),
-            make_pair("std::queue with spin-lock", testQueue<StdQueueWithLock<int, SpinLock>>),
             /*make_pair("lock-free queue", testQueue<MichaelScottQueue<int, HP>>),
             make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<int, HP>>),
             make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<int>>),
@@ -378,7 +378,8 @@ void benchmarkQueue() {
             make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<int>>),
             make_pair("std::queue with mutex", testQueue<StdQueueWithLock<int, std::mutex>>),
             make_pair("std::queue with spin-lock", testQueue<StdQueueWithLock<int, SpinLock>>),
-
+`           */
+             /*
             make_pair("[no backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP>>),
             make_pair("[constant backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff>>),
             make_pair("[exponential backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ExponentialBackoff>>),
@@ -414,29 +415,12 @@ void benchmarkSet() {
 
     ofstream cvsFile("set-results.cvs");
 
-    vector< pair<string, function<double(int)>>> testData {
-            make_pair("[512 buckets]Michael hash-table", testSet<MichaelHashTable<int, 512>>),
-            make_pair("std::unordered_set with mutex", testSet<StdUnorderedSetWrapper<int, std::mutex>>),
-            make_pair("std::unordered_set with spin-lock", testSet<StdUnorderedSetWrapper<int, SpinLock>>),
-            make_pair("tbb::concurent_hash_map", testSet<TBBConcurentHashTableWrapper<int>>),
-
-            /*make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<int>>),
-            make_pair("cds::container::msqueue", testQueue<cds::container::MSQueue<cds::gc::HP, int>>),
-            make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<int>>),
-            make_pair("std::queue with mutex", testQueue<StdQueueWithLock<int, std::mutex>>),
-            make_pair("std::queue with spin-lock", testQueue<StdQueueWithLock<int, SpinLock>>),
-            /*make_pair("lock-free queue", testQueue<MichaelScottQueue<int, HP>>),
-            make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<int, HP>>),
-            make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<int>>),
-            make_pair("cds::container::msqueue", testQueue<cds::container::MSQueue<cds::gc::HP, int>>),
-            make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<int>>),
-            make_pair("std::queue with mutex", testQueue<StdQueueWithLock<int, std::mutex>>),
-            make_pair("std::queue with spin-lock", testQueue<StdQueueWithLock<int, SpinLock>>),
-
-            make_pair("[no backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP>>),
-            make_pair("[constant backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff>>),
-            make_pair("[exponential backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ExponentialBackoff>>),
-            make_pair("[random backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, RandomBackoff>>),*/
+    vector< pair<string, function<double(int, int, int)>>> testData {
+            make_pair("[512 buckets]Michael hash-table", testSet<MichaelHashTable<long>>),
+            make_pair("std::unordered_set with mutex", testSet<StdUnorderedSetWrapper<long, std::mutex>>),
+            make_pair("std::unordered_set with spin-lock", testSet<StdUnorderedSetWrapper<long, SpinLock>>),
+            make_pair("tbb::concurent_hash_map", testSet<TBBConcurentHashTableWrapper<long>>),
+            make_pair("cds::michael_set", testSet<CDSMichaelSetWrapper<long>>),
     };
 
     cvsFile << '\"' << "threads cnt" << '\"';
@@ -445,6 +429,8 @@ void benchmarkSet() {
     }
     cvsFile << endl;
 
+    const int maxItemsCount = 1000000;
+    const int maxLoadFactor = 3;
 
     for (int threadCnt = 1; threadCnt <= 90; ) {
         printf("thread cnt - %d\n", threadCnt);
@@ -452,7 +438,7 @@ void benchmarkSet() {
 
         for (auto item : testData) {
             printf("testing %s...\n", item.first.c_str());
-            double res = item.second(threadCnt);
+            double res = item.second(threadCnt, maxItemsCount, maxLoadFactor);
             cerr << res << endl;
             cvsFile << ',' << res;
         }
@@ -482,9 +468,9 @@ int main() {
 
 
 
-        //benchmarkListSet();
+        benchmarkListSet();
         //benchmarkQueue();
-        benchmarkSet();
+        //benchmarkSet();
 
     }
 

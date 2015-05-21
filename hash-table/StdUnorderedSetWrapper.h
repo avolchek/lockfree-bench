@@ -15,6 +15,10 @@ private:
 
 public:
 
+    StdUnorderedSetWrapper(size_t maxItemsCount, size_t maxLoadFactor) {
+        s.max_load_factor(maxLoadFactor);
+    }
+
     void insert(Item x) {
         lk.lock();
         s.insert(x);

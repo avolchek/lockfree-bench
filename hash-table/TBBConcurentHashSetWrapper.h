@@ -13,6 +13,10 @@ private:
     tbb::concurrent_hash_map<Item, int> s;
 public:
 
+    TBBConcurentHashTableWrapper(int maxItemsCount, int maxLoadFactor) {
+
+    }
+
     void insert(Item x) {
         typename tbb::concurrent_hash_map<Item, int>::accessor a;
         s.insert(a, x);
