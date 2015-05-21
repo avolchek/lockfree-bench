@@ -13,7 +13,7 @@
 #include "../helpers/ConstantBackoff.h"
 #include "../helpers/NoBackoff.h"
 
-template<typename Item, typename GC, typename Backoff = NoBackoff>
+template<typename Item, typename GC, typename Backoff = ConstantBackoff<>>
 class LockFreeListSet {
 private:
 
