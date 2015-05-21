@@ -1,14 +1,2 @@
-"threads cnt",lock-free queue with pool",tbb::concurent_queue with std::allocator",tbb::concurent_queue with tbb::cache_aligned_allocator",tbb::concurent_queue with tbb::scalable_allocator"
-1,6.85847e+06,7.47802e+06,7.39122e+06,7.40625e+06
-4,4.269e+06,1.52512e+06,1.42575e+06,1.43398e+06
-7,4.07378e+06,1.63187e+06,2.0712e+06,1.70554e+06
-10,3.91246e+06,2.44492e+06,1.93595e+06,2.23295e+06
-13,3.90922e+06,2.38902e+06,2.08906e+06,2.45839e+06
-16,3.87836e+06,2.08273e+06,2.17049e+06,2.17792e+06
-19,3.79302e+06,1.9429e+06,1.98708e+06,1.9264e+06
-22,3.94356e+06,1.74694e+06,1.81595e+06,1.76941e+06
-25,3.85503e+06,1.59099e+06,1.64073e+06,1.56321e+06
-28,3.97642e+06,1.3774e+06,1.47215e+06,1.53976e+06
-31,4.28154e+06,1.49882e+06,1.20977e+06,1.27864e+06
-34,3.9711e+06,1.20776e+06,1.39878e+06,1.45149e+06
-37,3.6253e+06,1.30653e+06,1.39556e+06,1.3977e+06
+"threads cnt",lock-free queue",lock-free queue with pool",boost::lockfree::queue",cds::container::msqueue",cds::container::fcqueue",std::queue with mutex",std::queue with spin-lock"
+1,1.55596e+06,6.22371e+06,5.29006e+06,1.9137e+06,2.86845e+06,5.70976e+06,4.5835e+06
