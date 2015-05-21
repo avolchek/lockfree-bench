@@ -394,7 +394,7 @@ void benchmarkQueue() {
     cvsFile << endl;
 
 
-    for (int threadCnt = 32; threadCnt <= 256; ) {
+    for (int threadCnt = 1; threadCnt <= 256; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
