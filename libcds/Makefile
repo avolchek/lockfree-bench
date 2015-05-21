@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/andrew/lockfree-bench
+CMAKE_SOURCE_DIR = /home/andrew/ClionProjects/lockfree-bench
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/andrew/lockfree-bench
+CMAKE_BINARY_DIR = /home/andrew/ClionProjects/lockfree-bench
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -105,7 +105,7 @@ list_install_components/fast: list_install_components
 # Special rule for the target package
 package: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool..."
-	cd /home/andrew/lockfree-bench && /usr/bin/cpack --config ./CPackConfig.cmake
+	cd /home/andrew/ClionProjects/lockfree-bench && /usr/bin/cpack --config ./CPackConfig.cmake
 .PHONY : package
 
 # Special rule for the target package
@@ -115,7 +115,7 @@ package/fast: package
 # Special rule for the target package_source
 package_source:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool for source..."
-	cd /home/andrew/lockfree-bench && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/andrew/lockfree-bench/CPackSourceConfig.cmake
+	cd /home/andrew/ClionProjects/lockfree-bench && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/andrew/ClionProjects/lockfree-bench/CPackSourceConfig.cmake
 .PHONY : package_source
 
 # Special rule for the target package_source
@@ -134,14 +134,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/andrew/lockfree-bench && $(CMAKE_COMMAND) -E cmake_progress_start /home/andrew/lockfree-bench/CMakeFiles /home/andrew/lockfree-bench/libcds/CMakeFiles/progress.marks
-	cd /home/andrew/lockfree-bench && $(MAKE) -f CMakeFiles/Makefile2 libcds/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/andrew/lockfree-bench/CMakeFiles 0
+	cd /home/andrew/ClionProjects/lockfree-bench && $(CMAKE_COMMAND) -E cmake_progress_start /home/andrew/ClionProjects/lockfree-bench/CMakeFiles /home/andrew/ClionProjects/lockfree-bench/libcds/CMakeFiles/progress.marks
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f CMakeFiles/Makefile2 libcds/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/andrew/ClionProjects/lockfree-bench/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f CMakeFiles/Makefile2 libcds/clean
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f CMakeFiles/Makefile2 libcds/clean
 .PHONY : clean
 
 # The main clean target
@@ -150,22 +150,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/andrew/lockfree-bench && $(MAKE) -f CMakeFiles/Makefile2 libcds/preinstall
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f CMakeFiles/Makefile2 libcds/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f CMakeFiles/Makefile2 libcds/preinstall
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f CMakeFiles/Makefile2 libcds/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/andrew/lockfree-bench && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/andrew/ClionProjects/lockfree-bench && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 libcds/CMakeFiles/cds.dir/rule:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f CMakeFiles/Makefile2 libcds/CMakeFiles/cds.dir/rule
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f CMakeFiles/Makefile2 libcds/CMakeFiles/cds.dir/rule
 .PHONY : libcds/CMakeFiles/cds.dir/rule
 
 # Convenience name for target.
@@ -174,7 +174,7 @@ cds: libcds/CMakeFiles/cds.dir/rule
 
 # fast build rule for target.
 cds/fast:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/build
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/build
 .PHONY : cds/fast
 
 src/dhp_gc.o: src/dhp_gc.cpp.o
@@ -182,7 +182,7 @@ src/dhp_gc.o: src/dhp_gc.cpp.o
 
 # target to build an object file
 src/dhp_gc.cpp.o:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/dhp_gc.cpp.o
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/dhp_gc.cpp.o
 .PHONY : src/dhp_gc.cpp.o
 
 src/dhp_gc.i: src/dhp_gc.cpp.i
@@ -190,7 +190,7 @@ src/dhp_gc.i: src/dhp_gc.cpp.i
 
 # target to preprocess a source file
 src/dhp_gc.cpp.i:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/dhp_gc.cpp.i
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/dhp_gc.cpp.i
 .PHONY : src/dhp_gc.cpp.i
 
 src/dhp_gc.s: src/dhp_gc.cpp.s
@@ -198,7 +198,7 @@ src/dhp_gc.s: src/dhp_gc.cpp.s
 
 # target to generate assembly for a file
 src/dhp_gc.cpp.s:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/dhp_gc.cpp.s
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/dhp_gc.cpp.s
 .PHONY : src/dhp_gc.cpp.s
 
 src/dllmain.o: src/dllmain.cpp.o
@@ -206,7 +206,7 @@ src/dllmain.o: src/dllmain.cpp.o
 
 # target to build an object file
 src/dllmain.cpp.o:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/dllmain.cpp.o
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/dllmain.cpp.o
 .PHONY : src/dllmain.cpp.o
 
 src/dllmain.i: src/dllmain.cpp.i
@@ -214,7 +214,7 @@ src/dllmain.i: src/dllmain.cpp.i
 
 # target to preprocess a source file
 src/dllmain.cpp.i:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/dllmain.cpp.i
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/dllmain.cpp.i
 .PHONY : src/dllmain.cpp.i
 
 src/dllmain.s: src/dllmain.cpp.s
@@ -222,7 +222,7 @@ src/dllmain.s: src/dllmain.cpp.s
 
 # target to generate assembly for a file
 src/dllmain.cpp.s:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/dllmain.cpp.s
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/dllmain.cpp.s
 .PHONY : src/dllmain.cpp.s
 
 src/hp_gc.o: src/hp_gc.cpp.o
@@ -230,7 +230,7 @@ src/hp_gc.o: src/hp_gc.cpp.o
 
 # target to build an object file
 src/hp_gc.cpp.o:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/hp_gc.cpp.o
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/hp_gc.cpp.o
 .PHONY : src/hp_gc.cpp.o
 
 src/hp_gc.i: src/hp_gc.cpp.i
@@ -238,7 +238,7 @@ src/hp_gc.i: src/hp_gc.cpp.i
 
 # target to preprocess a source file
 src/hp_gc.cpp.i:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/hp_gc.cpp.i
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/hp_gc.cpp.i
 .PHONY : src/hp_gc.cpp.i
 
 src/hp_gc.s: src/hp_gc.cpp.s
@@ -246,7 +246,7 @@ src/hp_gc.s: src/hp_gc.cpp.s
 
 # target to generate assembly for a file
 src/hp_gc.cpp.s:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/hp_gc.cpp.s
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/hp_gc.cpp.s
 .PHONY : src/hp_gc.cpp.s
 
 src/init.o: src/init.cpp.o
@@ -254,7 +254,7 @@ src/init.o: src/init.cpp.o
 
 # target to build an object file
 src/init.cpp.o:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/init.cpp.o
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/init.cpp.o
 .PHONY : src/init.cpp.o
 
 src/init.i: src/init.cpp.i
@@ -262,7 +262,7 @@ src/init.i: src/init.cpp.i
 
 # target to preprocess a source file
 src/init.cpp.i:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/init.cpp.i
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/init.cpp.i
 .PHONY : src/init.cpp.i
 
 src/init.s: src/init.cpp.s
@@ -270,7 +270,7 @@ src/init.s: src/init.cpp.s
 
 # target to generate assembly for a file
 src/init.cpp.s:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/init.cpp.s
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/init.cpp.s
 .PHONY : src/init.cpp.s
 
 src/michael_heap.o: src/michael_heap.cpp.o
@@ -278,7 +278,7 @@ src/michael_heap.o: src/michael_heap.cpp.o
 
 # target to build an object file
 src/michael_heap.cpp.o:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/michael_heap.cpp.o
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/michael_heap.cpp.o
 .PHONY : src/michael_heap.cpp.o
 
 src/michael_heap.i: src/michael_heap.cpp.i
@@ -286,7 +286,7 @@ src/michael_heap.i: src/michael_heap.cpp.i
 
 # target to preprocess a source file
 src/michael_heap.cpp.i:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/michael_heap.cpp.i
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/michael_heap.cpp.i
 .PHONY : src/michael_heap.cpp.i
 
 src/michael_heap.s: src/michael_heap.cpp.s
@@ -294,7 +294,7 @@ src/michael_heap.s: src/michael_heap.cpp.s
 
 # target to generate assembly for a file
 src/michael_heap.cpp.s:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/michael_heap.cpp.s
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/michael_heap.cpp.s
 .PHONY : src/michael_heap.cpp.s
 
 src/topology_hpux.o: src/topology_hpux.cpp.o
@@ -302,7 +302,7 @@ src/topology_hpux.o: src/topology_hpux.cpp.o
 
 # target to build an object file
 src/topology_hpux.cpp.o:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_hpux.cpp.o
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_hpux.cpp.o
 .PHONY : src/topology_hpux.cpp.o
 
 src/topology_hpux.i: src/topology_hpux.cpp.i
@@ -310,7 +310,7 @@ src/topology_hpux.i: src/topology_hpux.cpp.i
 
 # target to preprocess a source file
 src/topology_hpux.cpp.i:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_hpux.cpp.i
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_hpux.cpp.i
 .PHONY : src/topology_hpux.cpp.i
 
 src/topology_hpux.s: src/topology_hpux.cpp.s
@@ -318,7 +318,7 @@ src/topology_hpux.s: src/topology_hpux.cpp.s
 
 # target to generate assembly for a file
 src/topology_hpux.cpp.s:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_hpux.cpp.s
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_hpux.cpp.s
 .PHONY : src/topology_hpux.cpp.s
 
 src/topology_linux.o: src/topology_linux.cpp.o
@@ -326,7 +326,7 @@ src/topology_linux.o: src/topology_linux.cpp.o
 
 # target to build an object file
 src/topology_linux.cpp.o:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_linux.cpp.o
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_linux.cpp.o
 .PHONY : src/topology_linux.cpp.o
 
 src/topology_linux.i: src/topology_linux.cpp.i
@@ -334,7 +334,7 @@ src/topology_linux.i: src/topology_linux.cpp.i
 
 # target to preprocess a source file
 src/topology_linux.cpp.i:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_linux.cpp.i
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_linux.cpp.i
 .PHONY : src/topology_linux.cpp.i
 
 src/topology_linux.s: src/topology_linux.cpp.s
@@ -342,7 +342,7 @@ src/topology_linux.s: src/topology_linux.cpp.s
 
 # target to generate assembly for a file
 src/topology_linux.cpp.s:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_linux.cpp.s
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_linux.cpp.s
 .PHONY : src/topology_linux.cpp.s
 
 src/topology_osx.o: src/topology_osx.cpp.o
@@ -350,7 +350,7 @@ src/topology_osx.o: src/topology_osx.cpp.o
 
 # target to build an object file
 src/topology_osx.cpp.o:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_osx.cpp.o
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_osx.cpp.o
 .PHONY : src/topology_osx.cpp.o
 
 src/topology_osx.i: src/topology_osx.cpp.i
@@ -358,7 +358,7 @@ src/topology_osx.i: src/topology_osx.cpp.i
 
 # target to preprocess a source file
 src/topology_osx.cpp.i:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_osx.cpp.i
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_osx.cpp.i
 .PHONY : src/topology_osx.cpp.i
 
 src/topology_osx.s: src/topology_osx.cpp.s
@@ -366,7 +366,7 @@ src/topology_osx.s: src/topology_osx.cpp.s
 
 # target to generate assembly for a file
 src/topology_osx.cpp.s:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_osx.cpp.s
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/topology_osx.cpp.s
 .PHONY : src/topology_osx.cpp.s
 
 src/urcu_gp.o: src/urcu_gp.cpp.o
@@ -374,7 +374,7 @@ src/urcu_gp.o: src/urcu_gp.cpp.o
 
 # target to build an object file
 src/urcu_gp.cpp.o:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/urcu_gp.cpp.o
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/urcu_gp.cpp.o
 .PHONY : src/urcu_gp.cpp.o
 
 src/urcu_gp.i: src/urcu_gp.cpp.i
@@ -382,7 +382,7 @@ src/urcu_gp.i: src/urcu_gp.cpp.i
 
 # target to preprocess a source file
 src/urcu_gp.cpp.i:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/urcu_gp.cpp.i
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/urcu_gp.cpp.i
 .PHONY : src/urcu_gp.cpp.i
 
 src/urcu_gp.s: src/urcu_gp.cpp.s
@@ -390,7 +390,7 @@ src/urcu_gp.s: src/urcu_gp.cpp.s
 
 # target to generate assembly for a file
 src/urcu_gp.cpp.s:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/urcu_gp.cpp.s
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/urcu_gp.cpp.s
 .PHONY : src/urcu_gp.cpp.s
 
 src/urcu_sh.o: src/urcu_sh.cpp.o
@@ -398,7 +398,7 @@ src/urcu_sh.o: src/urcu_sh.cpp.o
 
 # target to build an object file
 src/urcu_sh.cpp.o:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/urcu_sh.cpp.o
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/urcu_sh.cpp.o
 .PHONY : src/urcu_sh.cpp.o
 
 src/urcu_sh.i: src/urcu_sh.cpp.i
@@ -406,7 +406,7 @@ src/urcu_sh.i: src/urcu_sh.cpp.i
 
 # target to preprocess a source file
 src/urcu_sh.cpp.i:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/urcu_sh.cpp.i
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/urcu_sh.cpp.i
 .PHONY : src/urcu_sh.cpp.i
 
 src/urcu_sh.s: src/urcu_sh.cpp.s
@@ -414,7 +414,7 @@ src/urcu_sh.s: src/urcu_sh.cpp.s
 
 # target to generate assembly for a file
 src/urcu_sh.cpp.s:
-	cd /home/andrew/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/urcu_sh.cpp.s
+	cd /home/andrew/ClionProjects/lockfree-bench && $(MAKE) -f libcds/CMakeFiles/cds.dir/build.make libcds/CMakeFiles/cds.dir/src/urcu_sh.cpp.s
 .PHONY : src/urcu_sh.cpp.s
 
 # Help Target
@@ -473,6 +473,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/andrew/lockfree-bench && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/andrew/ClionProjects/lockfree-bench && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

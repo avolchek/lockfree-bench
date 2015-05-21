@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/andrew/lockfree-bench/libcds/src/dhp_gc.cpp
+/home/andrew/ClionProjects/lockfree-bench/libcds/src/dhp_gc.cpp
 algorithm
 -
 functional
@@ -16,7 +16,7 @@ cds/gc/details/dhp.h
 cds/algo/int_algo.h
 -
 
-/home/andrew/lockfree-bench/libcds/src/dllmain.cpp
+/home/andrew/ClionProjects/lockfree-bench/libcds/src/dllmain.cpp
 cds/details/defs.h
 -
 cds/os/thread.h
@@ -30,17 +30,17 @@ cds/algo/bitop.h
 cds/os/win/topology.h
 -
 
-/home/andrew/lockfree-bench/libcds/src/hp_const.h
+/home/andrew/ClionProjects/lockfree-bench/libcds/src/hp_const.h
 
-/home/andrew/lockfree-bench/libcds/src/hp_gc.cpp
+/home/andrew/ClionProjects/lockfree-bench/libcds/src/hp_gc.cpp
 cds/gc/details/hp.h
 -
 algorithm
 -
 hp_const.h
-/home/andrew/lockfree-bench/libcds/src/hp_const.h
+/home/andrew/ClionProjects/lockfree-bench/libcds/src/hp_const.h
 
-/home/andrew/lockfree-bench/libcds/src/init.cpp
+/home/andrew/ClionProjects/lockfree-bench/libcds/src/init.cpp
 cds/init.h
 -
 cds/algo/atomic.h
@@ -56,11 +56,11 @@ cds/threading/details/pthread_manager.h
 cds/threading/details/cxx11_manager.h
 -
 
-/home/andrew/lockfree-bench/libcds/src/michael_heap.cpp
+/home/andrew/ClionProjects/lockfree-bench/libcds/src/michael_heap.cpp
 cds/memory/michael/allocator.h
 -
 
-/home/andrew/lockfree-bench/libcds/src/topology_hpux.cpp
+/home/andrew/ClionProjects/lockfree-bench/libcds/src/topology_hpux.cpp
 cds/os/topology.h
 -
 cds/algo/atomic.h
@@ -68,7 +68,7 @@ cds/algo/atomic.h
 limits
 -
 
-/home/andrew/lockfree-bench/libcds/src/topology_linux.cpp
+/home/andrew/ClionProjects/lockfree-bench/libcds/src/topology_linux.cpp
 cds/os/topology.h
 -
 unistd.h
@@ -76,7 +76,7 @@ unistd.h
 fstream
 -
 
-/home/andrew/lockfree-bench/libcds/src/topology_osx.cpp
+/home/andrew/ClionProjects/lockfree-bench/libcds/src/topology_osx.cpp
 cds/os/topology.h
 -
 sys/types.h
@@ -84,11 +84,11 @@ sys/types.h
 sys/sysctl.h
 -
 
-/home/andrew/lockfree-bench/libcds/src/urcu_gp.cpp
+/home/andrew/ClionProjects/lockfree-bench/libcds/src/urcu_gp.cpp
 cds/urcu/details/gp.h
 -
 
-/home/andrew/lockfree-bench/libcds/src/urcu_sh.cpp
+/home/andrew/ClionProjects/lockfree-bench/libcds/src/urcu_sh.cpp
 cds/urcu/details/sh.h
 -
 
