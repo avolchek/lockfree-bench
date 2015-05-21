@@ -355,10 +355,10 @@ void benchmarkListSet() {
 
         cvsFile << endl;
 
-        if (threadCnt > 8) {
+        if (threadCnt > 16) {
             threadCnt += 4;
         } else {
-            threadCnt++;
+            threadCnt += 2;
         }
     }
 
@@ -393,7 +393,7 @@ void benchmarkQueue() {
     cvsFile << endl;
 
 
-    for (int threadCnt = 1; threadCnt <= 90; threadCnt += 3) {
+    for (int threadCnt = 1; threadCnt <= 90; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
@@ -405,6 +405,12 @@ void benchmarkQueue() {
         }
 
         cvsFile << endl;
+
+        if (threadCnt > 16) {
+            threadCnt += 4;
+        } else {
+            threadCnt += 2;
+        }
     }
 
     cvsFile.close();
@@ -445,10 +451,10 @@ void benchmarkSet() {
 
         cvsFile << endl;
 
-        if (threadCnt > 8) {
+        if (threadCnt > 16) {
             threadCnt += 4;
         } else {
-            threadCnt++;
+            threadCnt += 2;
         }
     }
 
@@ -468,8 +474,8 @@ int main() {
 
 
 
-        benchmarkListSet();
-        //benchmarkQueue();
+        //benchmarkListSet();
+        benchmarkQueue();
         //benchmarkSet();
 
     }
