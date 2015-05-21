@@ -95,7 +95,9 @@ class LockFreeListSetWithPool {
                     nNext.setMark(false);
                     if (prev->nxt.compare_exchange_strong(curr,
                                                           nNext,
-                                                          std::memory_order_acq_rel)) {
+                                                          std::memory_order_acquire,
+                                                          std::memory_order_relaxed
+                    )) {
                         retireNode(curr);
                     } else {
                         bkf.backoff();
@@ -164,7 +166,8 @@ public:
                 newNode->nxt.store(pos.second, std::memory_order_release);
 
                 if (pos.first->nxt.compare_exchange_strong(pos.second, newNode,
-                                                           std::memory_order_release)) {
+                                                           std::memory_order_release,
+                                                            std::memory_order_relaxed)) {
                     res = true;
                     done = true;
                 }
@@ -200,14 +203,18 @@ public:
                 cp.setMark(false);
                 if (!pos.second->nxt.compare_exchange_strong(cp,
                                                              mNxt,
-                                                             std::memory_order_release)) {
+                                                             std::memory_order_release,
+                                                             std::memory_order_relaxed
+                )) {
                     bkf.backoff();
                     continue;
                 }
 
                 pNxt.setMark(false);
                 if (pos.first->nxt.compare_exchange_weak(pos.second,
-                                                           pNxt, std::memory_order_release)) {
+                                                         pNxt, std::memory_order_release,
+                                                         std::memory_order_relaxed
+                )) {
                     retireNode(pos.second);
                 }
 
