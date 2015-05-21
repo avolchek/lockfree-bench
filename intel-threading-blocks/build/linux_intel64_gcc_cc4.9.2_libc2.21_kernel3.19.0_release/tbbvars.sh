@@ -1,6 +1,6 @@
 #!/bin/bash
-export TBBROOT="/home/andrew/Programming/tbb43_20150424oss" #
-tbb_bin="/home/andrew/Programming/tbb43_20150424oss/build/linux_intel64_gcc_cc4.9.2_libc2.21_kernel3.19.0_release" #
+export TBBROOT="/home/andrew/lockfree-bench/intel-threading-blocks" #
+tbb_bin="/home/andrew/lockfree-bench/intel-threading-blocks/build/linux_intel64_gcc_cc4.9.2_libc2.21_kernel3.19.0_release" #
 if [ -z "$CPATH" ]; then #
     export CPATH="${TBBROOT}/include" #
 else #

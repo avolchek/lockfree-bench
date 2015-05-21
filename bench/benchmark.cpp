@@ -18,7 +18,6 @@
 #include "../list-based-set/FineGrainedLockListSet.h"
 #include "../list-based-set/OptimisticLockListSet.h"
 #include "../list-based-set/LockFreeListSet.h"
-#include "../list-based-set/StdUnorderedSet.h"
 #include "../queue/StdQueueWithLock.h"
 #include "../queue/MichaelScottQueue.h"
 #include "../queue/BoostLockfreeQueueWrapper.h"
@@ -28,6 +27,9 @@
 #include "../helpers/ExponentialBackoff.h"
 #include "../helpers/RandomBackoff.h"
 #include "../queue/TBBQueueWrapper.h"
+#include "../hash-table/MichaelHashTable.h"
+#include "../hash-table/StdUnorderedSetWrapper.h"
+#include "../hash-table/TBBConcurentHashSetWrapper.h"
 #include <cds/init.h>
 #include <cds/gc/hp.h>
 #include <cds/container/msqueue.h>
@@ -106,10 +108,10 @@ void workerListProc(Container *c, int *operationsCount) {
     while (isRunning.load(std::memory_order_seq_cst)) {
         int op = rand() % 100;
         int x = rand() % 20000;
-        if (op < 20) {
+        if (op < 40) {
             //std::cerr << "add" << std::endl;
             c->add(x);
-        } else if (op < 40) {
+        } else if (op < 80) {
             //std::cerr << "remove" << std::endl;
             c->remove(x);
         } else {
@@ -182,7 +184,7 @@ void workerQueueProc(Container *c, int *operationsCnt) {
 template<typename Container>
 double testQueue(int threadsCnt) {
     const int testIter = 2;
-    const int runtime = 5;
+    const int runtime = 3;
 
     double res = 0.0;
 
@@ -217,6 +219,76 @@ double testQueue(int threadsCnt) {
 
     return res / runtime / testIter;
 }
+
+
+template<typename Container>
+void workerSetProc(Container *c, int *operationsCnt) {
+    HP::getInstance()->attachThread();
+    cds::threading::Manager::attachThread();
+    std::vector<int> added;
+
+    while (!isRunning.load(std::memory_order_seq_cst));
+
+    while (isRunning.load(std::memory_order_seq_cst)) {
+        int op = rand() % 100;
+        int x = rand();
+
+        if (op < 20) {
+            added.push_back(x);
+            c->insert(x);
+        } else if (op < 40) {
+            if (!added.empty()) {
+                c->erase(added.back());
+                added.pop_back();
+            }
+        } else {
+            c->contains(x);
+        }
+        (*operationsCnt)++;
+    }
+
+    cds::threading::Manager::detachThread();
+}
+
+template<typename Container>
+double testSet(int threadsCnt) {
+    const int testIter = 2;
+    const int runtime = 3;
+
+    double res = 0.0;
+
+    for (int iter = 0; iter < testIter; iter++) {
+        std::cerr << "iter " << iter << std::endl;
+        HP::getInstance()->attachThread();
+
+        Container *c = new Container();
+
+        isRunning.store(false, std::memory_order_release);
+
+        std::vector<std::thread> th;
+        std::vector<int> opCnt(threadsCnt, 0);
+        for (int i = 0; i < threadsCnt; i++) {
+            th.push_back(std::thread(workerSetProc<Container>, c, &opCnt[i]));
+        }
+
+        sleep(1);
+
+        isRunning.store(true, std::memory_order_seq_cst);
+        sleep(runtime);
+        isRunning.store(false, std::memory_order_seq_cst);
+
+        for (int i = 0; i < threadsCnt; i++) {
+            th[i].join();
+            res += opCnt[i];
+        }
+
+        delete c;
+        HP::getInstance()->detachAllThreads();
+    }
+
+    return res / runtime / testIter;
+}
+
 
 void benchmarkStack() {
     for (int threadsCnt = 1; threadsCnt <= 128; threadsCnt++) {
@@ -320,7 +392,7 @@ void benchmarkQueue() {
     cvsFile << endl;
 
 
-    for (int threadCnt = 8; threadCnt <= 90; threadCnt) {
+    for (int threadCnt = 1; threadCnt <= 90; threadCnt += 3) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
@@ -332,6 +404,66 @@ void benchmarkQueue() {
         }
 
         cvsFile << endl;
+    }
+
+    cvsFile.close();
+}
+
+void benchmarkSet() {
+    using namespace std;
+
+    ofstream cvsFile("set-results.cvs");
+
+    vector< pair<string, function<double(int)>>> testData {
+            make_pair("[512 buckets]Michael hash-table", testSet<MichaelHashTable<int, 512>>),
+            make_pair("std::unordered_set with mutex", testSet<StdUnorderedSetWrapper<int, std::mutex>>),
+            make_pair("std::unordered_set with spin-lock", testSet<StdUnorderedSetWrapper<int, SpinLock>>),
+            make_pair("tbb::concurent_hash_map", testSet<TBBConcurentHashTableWrapper<int>>),
+
+            /*make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<int>>),
+            make_pair("cds::container::msqueue", testQueue<cds::container::MSQueue<cds::gc::HP, int>>),
+            make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<int>>),
+            make_pair("std::queue with mutex", testQueue<StdQueueWithLock<int, std::mutex>>),
+            make_pair("std::queue with spin-lock", testQueue<StdQueueWithLock<int, SpinLock>>),
+            /*make_pair("lock-free queue", testQueue<MichaelScottQueue<int, HP>>),
+            make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<int, HP>>),
+            make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<int>>),
+            make_pair("cds::container::msqueue", testQueue<cds::container::MSQueue<cds::gc::HP, int>>),
+            make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<int>>),
+            make_pair("std::queue with mutex", testQueue<StdQueueWithLock<int, std::mutex>>),
+            make_pair("std::queue with spin-lock", testQueue<StdQueueWithLock<int, SpinLock>>),
+
+            make_pair("[no backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP>>),
+            make_pair("[constant backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff>>),
+            make_pair("[exponential backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ExponentialBackoff>>),
+            make_pair("[random backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, RandomBackoff>>),*/
+    };
+
+    cvsFile << '\"' << "threads cnt" << '\"';
+    for (auto item : testData) {
+        cvsFile << "," << item.first << "\"";
+    }
+    cvsFile << endl;
+
+
+    for (int threadCnt = 1; threadCnt <= 90; ) {
+        printf("thread cnt - %d\n", threadCnt);
+        cvsFile << threadCnt;
+
+        for (auto item : testData) {
+            printf("testing %s...\n", item.first.c_str());
+            double res = item.second(threadCnt);
+            cerr << res << endl;
+            cvsFile << ',' << res;
+        }
+
+        cvsFile << endl;
+
+        if (threadCnt > 8) {
+            threadCnt += 4;
+        } else {
+            threadCnt++;
+        }
     }
 
     cvsFile.close();
@@ -351,8 +483,8 @@ int main() {
 
 
         //benchmarkListSet();
-        benchmarkQueue();
-
+        //benchmarkQueue();
+        benchmarkSet();
 
     }
 

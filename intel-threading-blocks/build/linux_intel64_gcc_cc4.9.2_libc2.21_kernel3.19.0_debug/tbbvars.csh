@@ -1,6 +1,6 @@
 #!/bin/csh
-setenv TBBROOT "/home/andrew/Programming/tbb43_20150424oss" #
-setenv tbb_bin "/home/andrew/Programming/tbb43_20150424oss/build/linux_intel64_gcc_cc4.9.2_libc2.21_kernel3.19.0_debug" #
+setenv TBBROOT "/home/andrew/lockfree-bench/intel-threading-blocks" #
+setenv tbb_bin "/home/andrew/lockfree-bench/intel-threading-blocks/build/linux_intel64_gcc_cc4.9.2_libc2.21_kernel3.19.0_debug" #
 if (! $?CPATH) then #
     setenv CPATH "${TBBROOT}/include" #
 else #
