@@ -129,7 +129,7 @@ void workerListProc(Container *c, int *operationsCount) {
 template<typename Container>
 double testList(int threadsCnt) {
     const int testIter = 2;
-    const int runtime = 5;
+    const int runtime = 2;
 
     double res = 0.0;
 
@@ -186,7 +186,7 @@ void workerQueueProc(Container *c, int *operationsCnt) {
 template<typename Container>
 double testQueue(int threadsCnt) {
     const int testIter = 2;
-    const int runtime = 3;
+    const int runtime = 2;
 
     double res = 0.0;
 
@@ -322,8 +322,8 @@ void benchmarkListSet() {
             make_pair("lock-free list", testList<LockFreeListSet<int, HP>>),
             make_pair("lock-free list with pool", testList<LockFreeListSetWithPool<int, HP>>),
             make_pair("cds::container::michaellist", testList<LibCDSMichaelListWrapper<int>>),
-            make_pair("optimistic-lock list", testList<OptimisticLockListSet<int, HP, std::mutex>>),
-            make_pair("optimistic-lock with spin-lock list", testList<OptimisticLockListSet<int, HP, SpinLock>>),
+            //make_pair("optimistic-lock list", testList<OptimisticLockListSet<int, HP, std::mutex>>),
+            //make_pair("optimistic-lock with spin-lock list", testList<OptimisticLockListSet<int, HP, SpinLock>>),
             make_pair("optimistic-lock lazy delete", testList<OptimisticLockListSet<int, HP, std::mutex>>),
             make_pair("optimistic-lock lazy delete with spin-lock list", testList<OptimisticLockListSet<int, HP, SpinLock>>),
             /*make_pair("[no backoff]lock-free list", testList<LockFreeListSet<int, HP>>),
