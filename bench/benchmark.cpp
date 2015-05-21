@@ -371,14 +371,14 @@ void benchmarkQueue() {
     ofstream cvsFile("queue-results.cvs");
 
     vector< pair<string, function<double(int)>>> testData {
-            /*make_pair("lock-free queue", testQueue<MichaelScottQueue<int, HP>>),
+            make_pair("lock-free queue", testQueue<MichaelScottQueue<int, HP>>),
             make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<int, HP>>),
             make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<int>>),
             make_pair("cds::container::msqueue", testQueue<cds::container::MSQueue<cds::gc::HP, int>>),
             make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<int>>),
             make_pair("std::queue with mutex", testQueue<StdQueueWithLock<int, std::mutex>>),
             make_pair("std::queue with spin-lock", testQueue<StdQueueWithLock<int, SpinLock>>),
-`           */
+
              /*
             make_pair("[no backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP>>),
             make_pair("[constant backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff>>),
@@ -416,7 +416,7 @@ void benchmarkSet() {
     ofstream cvsFile("set-results.cvs");
 
     vector< pair<string, function<double(int, int, int)>>> testData {
-            make_pair("[512 buckets]Michael hash-table", testSet<MichaelHashTable<long>>),
+            make_pair("Michael hash-table", testSet<MichaelHashTable<long>>),
             make_pair("std::unordered_set with mutex", testSet<StdUnorderedSetWrapper<long, std::mutex>>),
             make_pair("std::unordered_set with spin-lock", testSet<StdUnorderedSetWrapper<long, SpinLock>>),
             make_pair("tbb::concurent_hash_map", testSet<TBBConcurentHashTableWrapper<long>>),
