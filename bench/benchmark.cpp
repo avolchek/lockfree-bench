@@ -371,21 +371,15 @@ void benchmarkQueue() {
     ofstream cvsFile("queue-results.cvs");
 
     vector< pair<string, function<double(int)>>> testData {
-            /*make_pair("lock-free queue", testQueue<MichaelScottQueue<int, HP>>),
-            make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<int, HP>>),
+            make_pair("lock-free queue", testQueue<MichaelScottQueue<int, HP, ConstantBackoff<>>>),
+            make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff<>>>),
             make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<int>>),
             make_pair("cds::container::msqueue", testQueue<cds::container::MSQueue<cds::gc::HP, int>>),
             make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<int>>),
             make_pair("std::queue with mutex", testQueue<StdQueueWithLock<int, std::mutex>>),
             make_pair("std::queue with spin-lock", testQueue<StdQueueWithLock<int, SpinLock>>),
-            */
 
-            make_pair("[constant backoff 100]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff<100>>>),
-            make_pair("[constant backoff 250]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff<250>>>),
-            make_pair("[constant backoff 350]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff<350>>>),
-            make_pair("[constant backoff 450]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff<450>>>),
-            make_pair("[constant backoff 550]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff<550>>>),
-            /*
+/*
             make_pair("[no backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP>>),
             make_pair("[constant backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff>>),
             make_pair("[exponential backoff 1024]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ExponentialBackoff<1024>>>),
@@ -400,7 +394,7 @@ void benchmarkQueue() {
     cvsFile << endl;
 
 
-    for (int threadCnt = 1; threadCnt <= 256; ) {
+    for (int threadCnt = 32; threadCnt <= 256; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
