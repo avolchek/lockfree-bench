@@ -73,18 +73,18 @@ class LockFreeListSetWithPool {
             retry:
             TNodePtr prev = head;
 
-            TNodePtr curr = prev->nxt.load(std::memory_order_acquire);
+            TNodePtr curr = prev->nxt.load(std::memory_order_relaxed);
 
             while (true) {
 
                 TNodePtr next = curr->nxt.load(std::memory_order_relaxed);
 
-                if (next != curr->nxt.load(std::memory_order_acquire)) {
+                if (next != curr->nxt.load(std::memory_order_relaxed)) {
                     bkf.backoff();
                     goto retry;
                 }
 
-                if (curr != prev->nxt.load(std::memory_order_acquire)) {
+                if (curr != prev->nxt.load(std::memory_order_relaxed)) {
                     bkf.backoff();
                     goto retry;
                 }
@@ -95,7 +95,7 @@ class LockFreeListSetWithPool {
                     nNext.setMark(false);
                     if (prev->nxt.compare_exchange_strong(curr,
                                                           nNext,
-                                                          std::memory_order_acquire,
+                                                          std::memory_order_release,
                                                           std::memory_order_relaxed
                     )) {
                         retireNode(curr);
@@ -163,7 +163,7 @@ public:
                 done = true;
                 retireNode(newNode);
             } else {
-                newNode->nxt.store(pos.second, std::memory_order_release);
+                newNode->nxt.store(pos.second, std::memory_order_relaxed);
 
                 if (pos.first->nxt.compare_exchange_strong(pos.second, newNode,
                                                            std::memory_order_release,
@@ -211,7 +211,7 @@ public:
                 }
 
                 pNxt.setMark(false);
-                if (pos.first->nxt.compare_exchange_weak(pos.second,
+                if (pos.first->nxt.compare_exchange_strong(pos.second,
                                                          pNxt, std::memory_order_release,
                                                          std::memory_order_relaxed
                 )) {
