@@ -27,11 +27,13 @@
 #include "../list-based-set/LibCDSMichaelListWrapper.h"
 #include "../helpers/ExponentialBackoff.h"
 #include "../helpers/RandomBackoff.h"
+#include "../queue/TBBQueueWrapper.h"
 #include <cds/init.h>
 #include <cds/gc/hp.h>
 #include <cds/container/msqueue.h>
 #include <cds/container/fcqueue.h>
 #include <cds/urcu/general_buffered.h>
+#include <tbb/concurrent_queue.h>
 
 std::atomic<bool> isRunning;
 
@@ -180,7 +182,7 @@ void workerQueueProc(Container *c, int *operationsCnt) {
 template<typename Container>
 double testQueue(int threadsCnt) {
     const int testIter = 2;
-    const int runtime = 3;
+    const int runtime = 5;
 
     double res = 0.0;
 
@@ -229,40 +231,6 @@ void benchmarkStack() {
     }
 }
 
-/*
-void benchmarkListSet() {
-    for (int threadsCnt = 16; threadsCnt <= 128; threadsCnt) {
-        printf("lock-free list with pool - %lf\n",
-               testList<LockFreeListSetWithPool<int, HP>>(threadsCnt));
-        printf("lock-free list - %lf\n",
-               testList<LockFreeListSet<int, HP>>(threadsCnt));
-        printf("cds::container::michaellist - %lf\n",
-                testList<LibCDSMichaelListWrapper<int>>(threadsCnt));
-
-        printf("%d threads:\n", threadsCnt);
-
-        printf("coarse-lock list - %lf\n", testList<CoarseLockListSet<int, std::mutex>>(threadsCnt));
-        printf("coarse-lock list with spin-lock - %lf\n",
-               testList<CoarseLockListSet<int, SpinLock>>(threadsCnt));
-
-        printf("lock-free list - %lf\n",
-               testList<LockFreeListSet<int, HP>>(threadsCnt));
-        printf("lock-free list with pool - %lf\n",
-               testList<LockFreeListSetWithPool<int, HP>>(threadsCnt));
-
-
-        printf("optimistic-lock list - %lf\n", testList<OptimisticLockListSet<int, HP, std::mutex>>(threadsCnt));
-        printf("optimistic-lock with spin-lock list - %lf\n",
-               testList<OptimisticLockListSet<int, HP, SpinLock>>(threadsCnt));
-
-        // TODO add atomics?
-        printf("optimistic-lock lazy delete list - %lf\n",
-               testList<OptimisticLockListSet<int, HP, std::mutex>>(threadsCnt));
-        printf("optimistic-lock lazy delete with spin-lock list - %lf\n",
-               testList<OptimisticLockListSet<int, HP, SpinLock>>(threadsCnt));
-        printf("\n");
-    }
-}*/
 
 void benchmarkListSet() {
     using namespace std;
@@ -270,7 +238,7 @@ void benchmarkListSet() {
     ofstream cvsFile("list-set-results-backoff.cvs");
 
     vector< pair<string, function<double(int)>>> testData {
-            make_pair("lock-free list with pool", testList<LockFreeListSetWithPool<int, HP>>),
+            /*make_pair("lock-free list with pool", testList<LockFreeListSetWithPool<int, HP>>),
             make_pair("cds::container::michaellist", testList<LibCDSMichaelListWrapper<int>>),
             /*make_pair("coarse-lock list", testList<CoarseLockListSet<int, std::mutex>>),
             make_pair("coarse-lock list with spin-lock", testList<CoarseLockListSet<int, SpinLock>>),
@@ -280,7 +248,7 @@ void benchmarkListSet() {
             make_pair("optimistic-lock list", testList<OptimisticLockListSet<int, HP, std::mutex>>),
             make_pair("optimistic-lock with spin-lock list", testList<OptimisticLockListSet<int, HP, SpinLock>>),
             make_pair("optimistic-lock lazy delete", testList<OptimisticLockListSet<int, HP, std::mutex>>),
-            make_pair("optimistic-lock lazy delete with spin-lock list", testList<OptimisticLockListSet<int, HP, SpinLock>>),
+            make_pair("optimistic-lock lazy delete with spin-lock list", testList<OptimisticLockListSet<int, HP, SpinLock>>),*/
             /*make_pair("[no backoff]lock-free list", testList<LockFreeListSet<int, HP>>),
             make_pair("[constant backoff]lock-free list", testList<LockFreeListSet<int, HP, ConstantBackoff>>),
             make_pair("[exponential backoff]lock-free list", testList<LockFreeListSet<int, HP, ExponentialBackoff>>),
@@ -320,8 +288,13 @@ void benchmarkQueue() {
     ofstream cvsFile("queue-results.cvs");
 
     vector< pair<string, function<double(int)>>> testData {
-            make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ExponentialBackoff>>),
-            make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<int>>),
+            make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ExponentialBackoff<>>>),
+            make_pair("tbb::concurent_queue with std::allocator", testQueue<TBBQueueWrapper<int, std::allocator<int>>>),
+            make_pair("tbb::concurent_queue with tbb::cache_aligned_allocator",
+                      testQueue<TBBQueueWrapper<int, tbb::cache_aligned_allocator<int>>>),
+            make_pair("tbb::concurent_queue with tbb::scalable_allocator",
+                      testQueue<TBBQueueWrapper<int, tbb::scalable_allocator<int>>>),
+            /*make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<int>>),
             make_pair("cds::container::msqueue", testQueue<cds::container::MSQueue<cds::gc::HP, int>>),
             make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<int>>),
             make_pair("std::queue with mutex", testQueue<StdQueueWithLock<int, std::mutex>>),
@@ -347,13 +320,14 @@ void benchmarkQueue() {
     cvsFile << endl;
 
 
-    for (int threadCnt = 2; threadCnt <= 90; threadCnt += 3) {
+    for (int threadCnt = 8; threadCnt <= 90; threadCnt) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
         for (auto item : testData) {
             printf("testing %s...\n", item.first.c_str());
             double res = item.second(threadCnt);
+            cerr << res << endl;
             cvsFile << ',' << res;
         }
 
@@ -375,7 +349,7 @@ int main() {
         cds::threading::Manager::attachThread();
 
 
-        // TODO compare_exchange_weak is fast!!!
+
         //benchmarkListSet();
         benchmarkQueue();
 

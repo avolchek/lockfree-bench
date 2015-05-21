@@ -107,11 +107,11 @@ public:
             if (lst == tail.load(std::memory_order_acquire)) {
                 if (nxt.getPtr() == nullptr) {
                     if (lst->nxt.compare_exchange_strong(nxt, newNode, std::memory_order_release, std::memory_order_relaxed)) {
-                        tail.compare_exchange_strong(lst, newNode, std::memory_order_release, std::memory_order_relaxed);
+                        tail.compare_exchange_weak(lst, newNode, std::memory_order_release, std::memory_order_relaxed);
                         return;
                     }
                 } else {
-                    tail.compare_exchange_strong(lst, nxt, std::memory_order_release, std::memory_order_relaxed);
+                    tail.compare_exchange_weak(lst, nxt, std::memory_order_release, std::memory_order_relaxed);
                 }
             }
 
@@ -131,7 +131,7 @@ public:
                     if (nxt.getPtr() == nullptr) {
                         return false;
                     } else {
-                        tail.compare_exchange_strong(lst, nxt, std::memory_order_release, std::memory_order_relaxed);
+                        tail.compare_exchange_weak(lst, nxt, std::memory_order_release, std::memory_order_relaxed);
                     }
                 } else {
                     if (nxt.getPtr() == nullptr) {
