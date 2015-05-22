@@ -487,7 +487,7 @@ void benchmarkQueue() {
     typedef int ItemType;
     vector< pair<string, function<std::pair<double, double>(int)>>> testData {
             make_pair("lock-free queue", testQueue<MichaelScottQueue<ItemType, HP, ConstantBackoff<>>>),
-            make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<ItemType, HP>),
+            make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<ItemType, HP>>),
             make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<ItemType>>),
             make_pair("cds::container::msqueue", testQueue<cds::container::MSQueue<cds::gc::HP, ItemType>>),
             make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<ItemType>>),
