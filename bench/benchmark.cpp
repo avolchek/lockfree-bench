@@ -396,18 +396,8 @@ void benchmarkListSet() {
             make_pair("lock-free list", testList<LockFreeListSet<int, HP>>),
             make_pair("lock-free list with pool", testList<LockFreeListSetWithPool<int, HP>>),
             make_pair("cds::container::michaellist", testList<LibCDSMichaelListWrapper<int>>),
-            //make_pair("optimistic-lock list", testList<OptimisticLockListSet<int, HP, std::mutex>>),
-            //make_pair("optimistic-lock with spin-lock list", testList<OptimisticLockListSet<int, HP, SpinLock>>),
             make_pair("optimistic-lock lazy delete", testList<OptimisticLockListSet<int, HP, std::mutex>>),
             make_pair("optimistic-lock lazy delete with spin-lock list", testList<OptimisticLockListSet<int, HP, SpinLock>>),
-            /*make_pair("[no backoff]lock-free list", testList<LockFreeListSet<int, HP>>),
-            make_pair("[constant backoff]lock-free list", testList<LockFreeListSet<int, HP, ConstantBackoff>>),
-            make_pair("[exponential backoff]lock-free list", testList<LockFreeListSet<int, HP, ExponentialBackoff>>),
-            make_pair("[random backoff]lock-free list", testList<LockFreeListSet<int, HP, RandomBackoff>>),
-            make_pair("[no backoff]lock-free list with pool", testList<LockFreeListSetWithPool<int, HP>>),
-            make_pair("[constant backoff]lock-free list with pool", testList<LockFreeListSetWithPool<int, HP, ConstantBackoff>>),
-            make_pair("[exponential backoff]lock-free list with pool", testList<LockFreeListSetWithPool<int, HP, ExponentialBackoff>>),
-            make_pair("[random backoff]lock-free list with pool", testList<LockFreeListSetWithPool<int, HP, RandomBackoff>>),*/
     };
 
     cvsFile << '\"' << "threads cnt" << '\"';
@@ -439,7 +429,7 @@ void benchmarkListSet() {
     cvsFile.close();
 }
 
-void benchmarkQueue() {
+void benchmarkQueueLatency() {
     using namespace std;
     using namespace std::chrono;
 
@@ -447,7 +437,7 @@ void benchmarkQueue() {
 
     typedef int ItemType;
     vector< pair<string, function<std::pair<double, double>(int)>>> testData {
-            //make_pair("lock-free queue", testQueue<MichaelScottQueue<ItemType, HP, ConstantBackoff<>>>),
+            make_pair("lock-free queue", testQueue<MichaelScottQueue<ItemType, HP, ConstantBackoff<>>>),
             make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<ItemType, HP, ConstantBackoff<>>>),
             make_pair("lock-free queue with pool and exponential backoff", testQueue<MSQueueWithPool<ItemType, HP, ExponentialBackoff<>>>),
             make_pair("lock-free queue with pool and no backoff", testQueue<MSQueueWithPool<ItemType, HP, NoBackoff>>),
@@ -456,15 +446,6 @@ void benchmarkQueue() {
             make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<ItemType>>),
             make_pair("std::queue with mutex", testQueue<StdQueueWithLock<ItemType, std::mutex>>),
             make_pair("std::queue with spin-lock", testQueue<StdQueueWithLock<ItemType, SpinLock>>),
-            //make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff<>>>),
-
-
-/*
-            make_pair("[no backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP>>),
-            make_pair("[constant backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff>>),
-            make_pair("[exponential backoff 1024]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ExponentialBackoff<1024>>>),
-            make_pair("[exponential backoff 256]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ExponentialBackoff<256>>>),
-            make_pair("[random backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, RandomBackoff>>),*/
     };
 
     cvsFile << '\"' << "threads cnt" << '\"';
@@ -481,6 +462,53 @@ void benchmarkQueue() {
         for (auto item : testData) {
             printf("testing %s...\n", item.first.c_str());
             double res = item.second(threadCnt).second;
+            cerr << res << endl;
+            cvsFile << ',' << res;
+        }
+
+        cvsFile << endl;
+
+        if (threadCnt > 16) {
+            threadCnt += 16;
+        } else {
+            threadCnt += 4;
+        }
+    }
+
+    cvsFile.close();
+}
+
+void benchmarkQueue() {
+
+    using namespace std;
+
+    ofstream cvsFile("queue-results.cvs");
+
+    typedef int ItemType;
+    vector< pair<string, function<std::pair<double, double>(int)>>> testData {
+            make_pair("lock-free queue", testQueue<MichaelScottQueue<ItemType, HP, ConstantBackoff<>>>),
+            make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<ItemType, HP>),
+            make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<ItemType>>),
+            make_pair("cds::container::msqueue", testQueue<cds::container::MSQueue<cds::gc::HP, ItemType>>),
+            make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<ItemType>>),
+            make_pair("std::queue with mutex", testQueue<StdQueueWithLock<ItemType, std::mutex>>),
+            make_pair("std::queue with spin-lock", testQueue<StdQueueWithLock<ItemType, SpinLock>>),
+    };
+
+    cvsFile << '\"' << "threads cnt" << '\"';
+    for (auto item : testData) {
+        cvsFile << "," << item.first << "\"";
+    }
+    cvsFile << endl;
+
+
+    for (int threadCnt = 1; threadCnt <= 128; ) {
+        printf("thread cnt - %d\n", threadCnt);
+        cvsFile << threadCnt;
+
+        for (auto item : testData) {
+            printf("testing %s...\n", item.first.c_str());
+            double res = item.second(threadCnt).first;
             cerr << res << endl;
             cvsFile << ',' << res;
         }
