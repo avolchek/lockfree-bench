@@ -111,10 +111,10 @@ void workerListProc(Container *c, int *operationsCount) {
     while (isRunning.load(std::memory_order_relaxed)) {
         int op = rand() % 100;
         int x = rand() % 20000;
-        if (op < 5) {
+        if (op < 0) {
             //std::cerr << "add" << std::endl;
             c->add(x);
-        } else if (op < 10) {
+        } else if (op < 0) {
             //std::cerr << "remove" << std::endl;
             c->remove(x);
         } else {
@@ -138,6 +138,10 @@ double testList(int threadsCnt) {
         HP::getInstance()->attachThread();
 
         Container *c = new Container();
+
+        for (int i = 0; i < 30; i++) {
+            c->add(rand());
+        }
 
         isRunning.store(false, std::memory_order_release);
 
