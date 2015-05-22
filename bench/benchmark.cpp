@@ -104,11 +104,11 @@ void workerListProc(Container *c, int *operationsCount) {
     HP::getInstance()->attachThread();
     cds::threading::Manager::attachThread();
 
-    while (!isRunning.load(std::memory_order_seq_cst));
+    while (!isRunning.load(std::memory_order_relaxed));
 
     // TODO remove only previously added items
     int a = 0;
-    while (isRunning.load(std::memory_order_seq_cst)) {
+    while (isRunning.load(std::memory_order_relaxed)) {
         int op = rand() % 100;
         int x = rand() % 20000;
         if (op < 40) {
