@@ -5,31 +5,35 @@
 #ifndef LOCKFREE_BENCH_LOCKFREELISTSETWITHPOOL_H
 #define LOCKFREE_BENCH_LOCKFREELISTSETWITHPOOL_H
 
-#include <atomic>
+//#include <atomic>
+#include <boost/atomic/atomic.hpp>
 #include <algorithm>
 #include <boost/lockfree/detail/tagged_ptr.hpp>
 #include "../helpers/TaggedPtr.h"
 #include "../helpers/ConstantBackoff.h"
 #include "../helpers/NoBackoff.h"
 
+namespace atm = boost;
+
 template<typename Item, typename GC, typename Backoff = ConstantBackoff<>>
 class LockFreeListSetWithPool {
+
     struct ListNode;
 
     typedef TaggedPtr<ListNode> TNodePtr;
 
     struct ListNode {
         Item data;
-        std::atomic<TNodePtr> nxt;
+        atm::atomic<TNodePtr> nxt;
         ListNode() {
-            nxt.store(TNodePtr(nullptr), std::memory_order_release);
+            nxt.store(TNodePtr(nullptr), atm::memory_order_release);
         }
     };
 
     TNodePtr head;
     TNodePtr dummyHead, dummyTail;
 
-    std::atomic<TNodePtr> poolHead;
+    atm::atomic<TNodePtr> poolHead;
 
     void spawnNodes() {
         const int cnt = 25;
@@ -41,12 +45,12 @@ class LockFreeListSetWithPool {
     TNodePtr getNewNode() {
         Backoff bkf;
         while (true) {
-            TNodePtr v = poolHead.load(std::memory_order_acquire);
+            TNodePtr v = poolHead.load(atm::memory_order_acquire);
 
             if (v) {
-                TNodePtr nxt = v->nxt.load(std::memory_order_acquire);
+                TNodePtr nxt = v->nxt.load(atm::memory_order_acquire);
 
-                if (poolHead.compare_exchange_weak(v, nxt, std::memory_order_release, std::memory_order_relaxed)) {
+                if (poolHead.compare_exchange_weak(v, nxt, atm::memory_order_release, atm::memory_order_relaxed)) {
                     return TNodePtr(v.getPtr(), v.getNextTag());
                 }
             } else {
@@ -60,10 +64,10 @@ class LockFreeListSetWithPool {
     void retireNode(TNodePtr p) {
         Backoff bkf;
         while (true) {
-            TNodePtr v = poolHead.load(std::memory_order_acquire);
-            p->nxt.store(v, std::memory_order_release);
+            TNodePtr v = poolHead.load(atm::memory_order_acquire);
+            p->nxt.store(v, atm::memory_order_release);
 
-            if (poolHead.compare_exchange_weak(v, p, std::memory_order_release, std::memory_order_relaxed)) {
+            if (poolHead.compare_exchange_weak(v, p, atm::memory_order_release, atm::memory_order_relaxed)) {
                 break;
             }
 
@@ -80,18 +84,18 @@ class LockFreeListSetWithPool {
             retry:
             TNodePtr prev = head;
 
-            TNodePtr curr = prev->nxt.load(std::memory_order_relaxed);
+            TNodePtr curr = prev->nxt.load(atm::memory_order_relaxed);
 
             while (true) {
 
-                TNodePtr next = curr->nxt.load(std::memory_order_relaxed);
+                TNodePtr next = curr->nxt.load(atm::memory_order_relaxed);
 
-                if (next != curr->nxt.load(std::memory_order_relaxed)) {
+                if (next != curr->nxt.load(atm::memory_order_relaxed)) {
                     bkf.backoff();
                     goto retry;
                 }
 
-                if (curr != prev->nxt.load(std::memory_order_relaxed)) {
+                if (curr != prev->nxt.load(atm::memory_order_relaxed)) {
                     bkf.backoff();
                     goto retry;
                 }
@@ -102,8 +106,8 @@ class LockFreeListSetWithPool {
                     nNext.setMark(false);
                     if (prev->nxt.compare_exchange_strong(curr,
                                                           nNext,
-                                                          std::memory_order_release,
-                                                          std::memory_order_relaxed
+                                                          atm::memory_order_release,
+                                                          atm::memory_order_relaxed
                     )) {
                         retireNode(curr);
                     } else {
@@ -128,26 +132,26 @@ public:
 
     LockFreeListSetWithPool()
         :head(nullptr), dummyHead(nullptr), dummyTail(nullptr) {
-        assert(std::atomic<TNodePtr>().is_lock_free());
+        assert(atm::atomic<TNodePtr>().is_lock_free());
 
         poolHead.store(TNodePtr(nullptr));
         head.setPtr(new ListNode);
         TNodePtr tail(new ListNode);
-        head->nxt.store(tail, std::memory_order_release);
+        head->nxt.store(tail, atm::memory_order_release);
         dummyHead = head, dummyTail = tail;
     }
 
     ~LockFreeListSetWithPool() {
         auto v = head;
         while (v) {
-            auto nxt = v->nxt.load(std::memory_order_acquire);
+            auto nxt = v->nxt.load(atm::memory_order_acquire);
             delete v.getPtr();
             v = nxt;
         }
 
-        v = poolHead.load(std::memory_order_acquire);
+        v = poolHead.load(atm::memory_order_acquire);
         while (v) {
-            auto nxt = v->nxt.load(std::memory_order_acquire);
+            auto nxt = v->nxt.load(atm::memory_order_acquire);
             delete v.getPtr();
             v = nxt;
         }
@@ -172,11 +176,11 @@ public:
                 done = true;
                 retireNode(newNode);
             } else {
-                newNode->nxt.store(pos.second, std::memory_order_relaxed);
+                newNode->nxt.store(pos.second, atm::memory_order_relaxed);
 
                 if (pos.first->nxt.compare_exchange_strong(pos.second, newNode,
-                                                           std::memory_order_release,
-                                                            std::memory_order_relaxed)) {
+                                                           atm::memory_order_release,
+                                                           atm::memory_order_relaxed)) {
                     res = true;
                     done = true;
                 }
@@ -203,7 +207,7 @@ public:
             bool done = false;
 
             if (pos.second != dummyTail && pos.second->data == x) {
-                auto pNxt = pos.second->nxt.load(std::memory_order_relaxed);
+                auto pNxt = pos.second->nxt.load(atm::memory_order_relaxed);
 
                 auto mNxt = pNxt;
                 mNxt.setMark(true);
@@ -212,8 +216,8 @@ public:
                 cp.setMark(false);
                 if (!pos.second->nxt.compare_exchange_strong(cp,
                                                              mNxt,
-                                                             std::memory_order_release,
-                                                             std::memory_order_relaxed
+                                                             atm::memory_order_release,
+                                                             atm::memory_order_relaxed
                 )) {
                     bkf.backoff();
                     continue;
@@ -221,8 +225,8 @@ public:
 
                 pNxt.setMark(false);
                 if (pos.first->nxt.compare_exchange_strong(pos.second,
-                                                         pNxt, std::memory_order_release,
-                                                         std::memory_order_relaxed
+                                                         pNxt, atm::memory_order_release,
+                                                           atm::memory_order_relaxed
                 )) {
                     retireNode(pos.second);
                 }
@@ -246,7 +250,7 @@ public:
 
         auto pos = find(x);
         bool res = pos.second != dummyTail &&
-                   !pos.second->nxt.load(std::memory_order_acquire).getMark() &&
+                   !pos.second->nxt.load(atm::memory_order_acquire).getMark() &&
                    pos.second->data == x;
         return res;
     }
