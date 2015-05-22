@@ -106,7 +106,7 @@ void workerListProc(Container *c, int *operationsCount) {
 
     while (!isRunning.load(std::memory_order_relaxed));
 
-    // TODO remove only previously added items
+    std::vector<int> added;
     int a = 0;
     while (isRunning.load(std::memory_order_relaxed)) {
         int op = rand() % 100;
@@ -114,9 +114,13 @@ void workerListProc(Container *c, int *operationsCount) {
         if (op < 5) {
             //std::cerr << "add" << std::endl;
             c->add(x);
+            added.push_back(x);
         } else if (op < 10) {
             //std::cerr << "remove" << std::endl;
-            c->remove(x);
+            if (!added.empty()) {
+                c->remove(added.back());
+                added.pop_back();
+            }
         } else {
             c->contains(x);
         }
