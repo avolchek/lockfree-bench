@@ -111,10 +111,10 @@ void workerListProc(Container *c, int *operationsCount) {
     while (isRunning.load(std::memory_order_relaxed)) {
         int op = rand() % 100;
         int x = rand();
-        if (op < 0) {
+        if (op < 5) {
             //std::cerr << "add" << std::endl;
             c->add(x);
-        } else if (op < 5) {
+        } else if (op < 10) {
             //std::cerr << "remove" << std::endl;
             c->remove(x);
         } else {
