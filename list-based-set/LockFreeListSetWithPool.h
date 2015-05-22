@@ -12,10 +12,11 @@
 #include "../helpers/TaggedPtr.h"
 #include "../helpers/ConstantBackoff.h"
 #include "../helpers/NoBackoff.h"
+#include "../helpers/ExponentialBackoff.h"
 
 namespace atm = boost;
 
-template<typename Item, typename GC, typename Backoff = ConstantBackoff<>>
+template<typename Item, typename GC, typename Backoff = ExponentialBackoff<>>
 class LockFreeListSetWithPool {
 
     struct ListNode;
@@ -45,10 +46,10 @@ class LockFreeListSetWithPool {
     TNodePtr getNewNode() {
         Backoff bkf;
         while (true) {
-            TNodePtr v = poolHead.load(atm::memory_order_acquire);
+            TNodePtr v = poolHead.load(atm::memory_order_relaxed);
 
             if (v) {
-                TNodePtr nxt = v->nxt.load(atm::memory_order_acquire);
+                TNodePtr nxt = v->nxt.load(atm::memory_order_relaxed);
 
                 if (poolHead.compare_exchange_weak(v, nxt, atm::memory_order_release, atm::memory_order_relaxed)) {
                     return TNodePtr(v.getPtr(), v.getNextTag());
@@ -64,8 +65,8 @@ class LockFreeListSetWithPool {
     void retireNode(TNodePtr p) {
         Backoff bkf;
         while (true) {
-            TNodePtr v = poolHead.load(atm::memory_order_acquire);
-            p->nxt.store(v, atm::memory_order_release);
+            TNodePtr v = poolHead.load(atm::memory_order_relaxed);
+            p->nxt.store(v, atm::memory_order_relaxed);
 
             if (poolHead.compare_exchange_weak(v, p, atm::memory_order_release, atm::memory_order_relaxed)) {
                 break;
