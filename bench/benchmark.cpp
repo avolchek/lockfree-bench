@@ -414,6 +414,7 @@ void benchmarkListSet() {
         for (auto item : testData) {
             printf("testing %s...\n", item.first.c_str());
             double res = item.second(threadCnt);
+            std::cerr << res << std::endl;
             cvsFile << ',' << res;
         }
 
