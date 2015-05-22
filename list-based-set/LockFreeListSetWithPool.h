@@ -87,16 +87,18 @@ class LockFreeListSetWithPool {
 
             TNodePtr curr = prev->nxt.load(atm::memory_order_acquire);
 
-            while (true) {
+            while (true)
+                retry2:
+            {
 
                 TNodePtr next = curr->nxt.load(atm::memory_order_relaxed);
 
-                if (next != curr->nxt.load(atm::memory_order_acquire)) {
+                if (next != curr->nxt.load(atm::memory_order_relaxed)) {
                     bkf.backoff();
                     goto retry;
                 }
 
-                if (curr != prev->nxt.load(atm::memory_order_acquire)) {
+                if (curr != prev->nxt.load(atm::memory_order_relaxed)) {
                     bkf.backoff();
                     goto retry;
                 }
@@ -113,7 +115,7 @@ class LockFreeListSetWithPool {
                         retireNode(curr);
                     } else {
                         bkf.backoff();
-                        goto retry;
+                        goto retry2;
                     }
                 } else {
                     if (curr == dummyTail || curr->data >= x) {
