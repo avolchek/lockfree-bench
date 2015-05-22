@@ -71,7 +71,7 @@ public:
 
     HP(
               int pointersPerThread = 8,
-              int maxThreadsCnt = 256
+              int maxThreadsCnt = 2048
         );
 
     ~HP();
