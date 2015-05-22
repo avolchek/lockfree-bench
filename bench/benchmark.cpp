@@ -407,7 +407,7 @@ void benchmarkListSet() {
     cvsFile << endl;
 
 
-    for (int threadCnt = 1; threadCnt <= 1024; ) {
+    for (int threadCnt = 1; threadCnt <= 512; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
@@ -420,7 +420,7 @@ void benchmarkListSet() {
         cvsFile << endl;
 
         if (threadCnt > 16) {
-            threadCnt += 32;
+            threadCnt += 16;
         } else {
             threadCnt += 4;
         }
