@@ -6,6 +6,8 @@
 #define LOCKFREE_BENCH_LOCKFREEQUEUE_H
 
 #include <atomic>
+#include <iostream>
+#include <assert.h>
 #include "Queue.h"
 #include "../helpers/NoBackoff.h"
 
@@ -37,6 +39,7 @@ private:
 public:
 
     MichaelScottQueue() {
+        assert(std::atomic<ListNode*>().is_lock_free());
         tail = head = new ListNode();
     }
 
@@ -111,6 +114,11 @@ public:
                         //bkf.backoff();
                     }
                 } else {
+                    if (nxt == nullptr) {
+                        std::cerr << "nxt is null" << std::endl;
+                        continue;
+                    }
+
                     res = nxt->data;
                     if (head.compare_exchange_weak(fst, nxt, std::memory_order_release, std::memory_order_relaxed)) {
                         GC::getInstance()->retirePtr(fst, [](void *p) { delete (ListNode*)p; });

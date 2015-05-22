@@ -71,6 +71,7 @@ class MSQueueWithPool {
 public:
 
     MSQueueWithPool() {
+        assert(std::atomic<TNodePtr>().is_lock_free());
         ListNode *v = new ListNode();
         tail = head = TNodePtr(v);
         poolHead.store(TNodePtr(nullptr), std::memory_order_release);
@@ -137,7 +138,7 @@ public:
                     if (nxt.getPtr() == nullptr) {
                         continue;
                     }
-                    assert(nxt.getPtr());
+
                     res = nxt->data;
                     if (head.compare_exchange_strong(fst, nxt, std::memory_order_release, std::memory_order_relaxed)) {
                         retireNode(fst);

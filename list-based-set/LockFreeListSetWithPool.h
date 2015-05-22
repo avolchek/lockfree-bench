@@ -31,6 +31,13 @@ class LockFreeListSetWithPool {
 
     std::atomic<TNodePtr> poolHead;
 
+    void spawnNodes() {
+        const int cnt = 25;
+        for (int i = 0; i < cnt; i++) {
+            retireNode(TNodePtr(new ListNode));
+        }
+    }
+
     TNodePtr getNewNode() {
         Backoff bkf;
         while (true) {
@@ -121,6 +128,8 @@ public:
 
     LockFreeListSetWithPool()
         :head(nullptr), dummyHead(nullptr), dummyTail(nullptr) {
+        assert(std::atomic<TNodePtr>().is_lock_free());
+
         poolHead.store(TNodePtr(nullptr));
         head.setPtr(new ListNode);
         TNodePtr tail(new ListNode);

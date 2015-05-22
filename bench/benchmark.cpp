@@ -38,6 +38,7 @@
 #include <tbb/concurrent_queue.h>
 #include <cds/container/michael_set.h>
 #include "../hash-table/CDSMichaelSetWrapper.h"
+#include <ctime>
 
 std::atomic<bool> isRunning;
 
@@ -163,19 +164,29 @@ double testList(int threadsCnt) {
 }
 
 template<typename Container>
-void workerQueueProc(Container *c, int *operationsCnt) {
+void workerQueueProc(Container *c, int *operationsCnt, double *latency) {
     HP::getInstance()->attachThread();
     cds::threading::Manager::attachThread();
 
     while (!isRunning.load(std::memory_order_seq_cst));
 
+    using namespace std::chrono;
+
     while (isRunning.load(std::memory_order_seq_cst)) {
         int op = rand() & 1;
-        int x = rand() % 10000;
+        int x = rand();
+
+
         if (op) {
+            steady_clock::time_point start = steady_clock::now();
             c->push(x);
+            steady_clock::time_point end = steady_clock::now();
+            (*latency) += duration_cast<duration<double>>(end - start).count();
         } else {
+            steady_clock::time_point start = steady_clock::now();
             c->pop(x);
+            steady_clock::time_point end = steady_clock::now();
+            (*latency) += duration_cast<duration<double>>(end - start).count();
         }
         (*operationsCnt)++;
     }
@@ -184,11 +195,14 @@ void workerQueueProc(Container *c, int *operationsCnt) {
 }
 
 template<typename Container>
-double testQueue(int threadsCnt) {
+std::pair<double, double> testQueue(int threadsCnt) {
     const int testIter = 2;
     const int runtime = 2;
 
-    double res = 0.0;
+    double resOps = 0.0;
+    double resLatency = 0.0;
+
+    std::vector<double> latencySamples;
 
     for (int iter = 0; iter < testIter; iter++) {
         std::cerr << "iter " << iter << std::endl;
@@ -200,34 +214,56 @@ double testQueue(int threadsCnt) {
 
         std::vector<std::thread> th;
         std::vector<int> opCnt(threadsCnt, 0);
+        std::vector<double> latency(threadsCnt, 0);
         for (int i = 0; i < threadsCnt; i++) {
-            th.push_back(std::thread(workerQueueProc<Container>, c, &opCnt[i]));
+            th.push_back(std::thread(workerQueueProc<Container>, c, &opCnt[i], &latency[i]));
         }
 
-        sleep(1);
+        usleep(300);
 
         isRunning.store(true, std::memory_order_seq_cst);
         sleep(runtime);
         isRunning.store(false, std::memory_order_seq_cst);
 
+        double opSum = 0.0;
+        double latencySum = 0.0;
+
         for (int i = 0; i < threadsCnt; i++) {
             th[i].join();
-            res += opCnt[i];
+            opSum += opCnt[i];
+            latencySum += latency[i];
         }
+
+        resOps += opSum;
+        resLatency += latencySum / opSum;
+
+        latencySamples.push_back(latencySum / opSum);
 
         delete c;
         HP::getInstance()->detachAllThreads();
     }
 
-    return res / runtime / testIter;
+    resOps /= runtime * testIter;
+    resLatency /= testIter;
+
+    double variance = 0.0;
+    for (auto x : latencySamples) {
+        variance = (resLatency - x) * (resLatency - x);
+    }
+
+    std::cerr << "latency standard deviation is " << sqrt(variance) << " (" << (sqrt(variance) / resLatency * 100.0) << " %)" << std::endl;
+
+    return std::make_pair(resOps, resLatency);
 }
 
 
 template<typename Container>
-void workerSetProc(Container *c, int *operationsCnt) {
+void workerSetProc(Container *c, int *operationsCnt, double *latency) {
     HP::getInstance()->attachThread();
     cds::threading::Manager::attachThread();
     std::vector<int> added;
+
+    using namespace std::chrono;
 
     while (!isRunning.load(std::memory_order_seq_cst));
 
@@ -236,16 +272,33 @@ void workerSetProc(Container *c, int *operationsCnt) {
         int x = rand();
 
         if (op < 5) {
+            steady_clock::time_point start = steady_clock::now();
+
             added.push_back(x);
             c->insert(x);
+
+            steady_clock::time_point end = steady_clock::now();
+            (*latency) += duration_cast<duration<double>>(end - start).count();
         } else if (op < 5) {
             if (!added.empty()) {
+                steady_clock::time_point start = steady_clock::now();
+
                 c->erase(added.back());
                 added.pop_back();
+
+                steady_clock::time_point end = steady_clock::now();
+                (*latency) += duration_cast<duration<double>>(end - start).count();
             }
         } else {
+            steady_clock::time_point start = steady_clock::now();
+
             c->contains(x);
+
+            steady_clock::time_point end = steady_clock::now();
+            (*latency) += duration_cast<duration<double>>(end - start).count();
         }
+
+        usleep(5);
         (*operationsCnt)++;
     }
 
@@ -253,12 +306,14 @@ void workerSetProc(Container *c, int *operationsCnt) {
 }
 
 template<typename Container>
-double testSet(int threadsCnt, int maxItemsCount, int maxLoadFactor) {
+std::pair<double, double> testSet(int threadsCnt, int maxItemsCount, int maxLoadFactor) {
     const int testIter = 2;
     const int runtime = 2;
     const int initialItemsCount = 100000;
 
-    double res = 0.0;
+    double resOp = 0.0;
+    double resLatency = 0.0;
+    std::vector<double> latencySamples;
 
     for (int iter = 0; iter < testIter; iter++) {
         //std::cerr << "iter " << iter << std::endl;
@@ -274,26 +329,45 @@ double testSet(int threadsCnt, int maxItemsCount, int maxLoadFactor) {
 
         std::vector<std::thread> th;
         std::vector<int> opCnt(threadsCnt, 0);
+        std::vector<double> latency(threadsCnt, 0);
         for (int i = 0; i < threadsCnt; i++) {
-            th.push_back(std::thread(workerSetProc<Container>, c, &opCnt[i]));
+            th.push_back(std::thread(workerSetProc<Container>, c, &opCnt[i], &latency[i]));
         }
 
-        sleep(1);
+        usleep(300);
 
         isRunning.store(true, std::memory_order_seq_cst);
         sleep(runtime);
         isRunning.store(false, std::memory_order_seq_cst);
 
+        double opSum = 0;
+        double latencySum = 0;
         for (int i = 0; i < threadsCnt; i++) {
             th[i].join();
-            res += opCnt[i];
+            opSum += opCnt[i];
+            latencySum += latency[i];
         }
+
+        resOp += opSum;
+        resLatency += latencySum / opSum;
+
+        latencySamples.push_back(latencySum / opSum);
 
         delete c;
         HP::getInstance()->detachAllThreads();
     }
 
-    return res / runtime / testIter;
+    resOp /= runtime / testIter;
+    resLatency /= testIter;
+
+    double variance = 0;
+    for (auto x : latencySamples) {
+        variance += (resLatency - x) * (resLatency - x);
+    }
+
+    std::cerr << "latency standard deviation is " << sqrt(variance) << " (" << (sqrt(variance) / resLatency * 100.0) << " %)" << std::endl;
+
+    return std::make_pair(resOp, resLatency);
 }
 
 
@@ -343,7 +417,7 @@ void benchmarkListSet() {
     cvsFile << endl;
 
 
-    for (int threadCnt = 1; threadCnt <= 256; ) {
+    for (int threadCnt = 1; threadCnt <= 128; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
@@ -367,17 +441,23 @@ void benchmarkListSet() {
 
 void benchmarkQueue() {
     using namespace std;
+    using namespace std::chrono;
 
-    ofstream cvsFile("queue-results.cvs");
+    ofstream cvsFile("queue-results-latency.cvs");
 
-    vector< pair<string, function<double(int)>>> testData {
-            make_pair("lock-free queue", testQueue<MichaelScottQueue<int, HP, ConstantBackoff<>>>),
-            make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff<>>>),
-            make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<int>>),
-            make_pair("cds::container::msqueue", testQueue<cds::container::MSQueue<cds::gc::HP, int>>),
-            make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<int>>),
-            make_pair("std::queue with mutex", testQueue<StdQueueWithLock<int, std::mutex>>),
-            make_pair("std::queue with spin-lock", testQueue<StdQueueWithLock<int, SpinLock>>),
+    typedef int ItemType;
+    vector< pair<string, function<std::pair<double, double>(int)>>> testData {
+            //make_pair("lock-free queue", testQueue<MichaelScottQueue<ItemType, HP, ConstantBackoff<>>>),
+            make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<ItemType, HP, ConstantBackoff<>>>),
+            make_pair("lock-free queue with pool and exponential backoff", testQueue<MSQueueWithPool<ItemType, HP, ExponentialBackoff<>>>),
+            make_pair("lock-free queue with pool and no backoff", testQueue<MSQueueWithPool<ItemType, HP, NoBackoff>>),
+            make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<ItemType>>),
+            make_pair("cds::container::msqueue", testQueue<cds::container::MSQueue<cds::gc::HP, ItemType>>),
+            make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<ItemType>>),
+            make_pair("std::queue with mutex", testQueue<StdQueueWithLock<ItemType, std::mutex>>),
+            make_pair("std::queue with spin-lock", testQueue<StdQueueWithLock<ItemType, SpinLock>>),
+            //make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<int, HP, ConstantBackoff<>>>),
+
 
 /*
             make_pair("[no backoff]lock-free queue with pool", testQueue<MSQueueWithPool<int, HP>>),
@@ -394,13 +474,13 @@ void benchmarkQueue() {
     cvsFile << endl;
 
 
-    for (int threadCnt = 1; threadCnt <= 256; ) {
+    for (int threadCnt = 1; threadCnt <= 128; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
         for (auto item : testData) {
             printf("testing %s...\n", item.first.c_str());
-            double res = item.second(threadCnt);
+            double res = item.second(threadCnt).second;
             cerr << res << endl;
             cvsFile << ',' << res;
         }
@@ -422,8 +502,55 @@ void benchmarkSet() {
 
     ofstream cvsFile("set-results.cvs");
 
-    vector< pair<string, function<double(int, int, int)>>> testData {
+    vector< pair<string, function<std::pair<double, double>(int, int, int)>>> testData {
             make_pair("Michael hash-table", testSet<MichaelHashTable<long>>),
+            make_pair("Michael hash-table with coarse locking lists", testSet<MichaelHashTable<long, CoarseLockListSet<long, SpinLock>>>),
+            make_pair("std::unordered_set with mutex", testSet<StdUnorderedSetWrapper<long, std::mutex>>),
+            make_pair("std::unordered_set with spin-lock", testSet<StdUnorderedSetWrapper<long, SpinLock>>),
+            make_pair("tbb::concurent_hash_map", testSet<TBBConcurentHashTableWrapper<long>>),
+            make_pair("cds::michael_set", testSet<CDSMichaelSetWrapper<long>>),
+    };
+
+    cvsFile << '\"' << "threads cnt" << '\"';
+    for (auto item : testData) {
+        cvsFile << "," << item.first << "\"";
+    }
+    cvsFile << endl;
+
+    const int maxItemsCount = 1000000;
+    const int maxLoadFactor = 5;
+
+    for (int threadCnt = 1; threadCnt <= 128; ) {
+        printf("thread cnt - %d\n", threadCnt);
+        cvsFile << threadCnt;
+
+        for (auto item : testData) {
+            printf("testing %s...\n", item.first.c_str());
+            double res = item.second(threadCnt, maxItemsCount, maxLoadFactor).first;
+            cerr << res << endl;
+            cvsFile << ',' << res;
+        }
+
+        cvsFile << endl;
+
+        if (threadCnt > 16) {
+            threadCnt += 16;
+        } else {
+            threadCnt += 4;
+        }
+    }
+
+    cvsFile.close();
+}
+
+void benchmarkSetLatency() {
+    using namespace std;
+
+    ofstream cvsFile("set-results-latency.cvs");
+
+    vector< pair<string, function<std::pair<double, double>(int, int, int)>>> testData {
+            make_pair("Michael hash-table", testSet<MichaelHashTable<long>>),
+            make_pair("Michael hash-table with coarse locking lists", testSet<MichaelHashTable<long, CoarseLockListSet<long, SpinLock>>>),
             make_pair("std::unordered_set with mutex", testSet<StdUnorderedSetWrapper<long, std::mutex>>),
             make_pair("std::unordered_set with spin-lock", testSet<StdUnorderedSetWrapper<long, SpinLock>>),
             make_pair("tbb::concurent_hash_map", testSet<TBBConcurentHashTableWrapper<long>>),
@@ -439,13 +566,13 @@ void benchmarkSet() {
     const int maxItemsCount = 1000000;
     const int maxLoadFactor = 3;
 
-    for (int threadCnt = 1; threadCnt <= 256; ) {
+    for (int threadCnt = 1; threadCnt <= 128; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
         for (auto item : testData) {
             printf("testing %s...\n", item.first.c_str());
-            double res = item.second(threadCnt, maxItemsCount, maxLoadFactor);
+            double res = item.second(threadCnt, maxItemsCount, maxLoadFactor).second;
             cerr << res << endl;
             cvsFile << ',' << res;
         }
@@ -465,6 +592,7 @@ void benchmarkSet() {
 int main() {
     HP::initInstance();
 
+
     cds::Initialize();
     {
         cds::gc::HP hpGC;
@@ -476,8 +604,9 @@ int main() {
 
 
         //benchmarkListSet();
-        benchmarkQueue();
-        //benchmarkSet();
+        //benchmarkQueue();
+        //benchmarkSetLatency();
+        benchmarkSet();
 
     }
 

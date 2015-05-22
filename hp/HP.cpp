@@ -57,8 +57,8 @@ void HP::scan(HPThreadNode *rec) {
     }
 
 HP::HP(
-        int pointersPerThread = 8,
-        int maxThreadsCnt = 512
+        int pointersPerThread,
+        int maxThreadsCnt
 ) : pointersPerThread(pointersPerThread),
     maxThreadsCnt(maxThreadsCnt),
     batchSize(pointersPerThread * maxThreadsCnt * 2) {

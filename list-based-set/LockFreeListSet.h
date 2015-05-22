@@ -106,6 +106,8 @@ private:
 public:
 
     LockFreeListSet() {
+        assert(std::atomic<ListNode*>().is_lock_free());
+
         head = new ListNode;
         ListNode *tail = new ListNode;
         head->nxt.store(tail, std::memory_order_release);

@@ -1,3 +1,10 @@
+#SET (CMAKE_C_COMPILER             "/usr/bin/clang")
+#SET (CMAKE_CXX_COMPILER             "/usr/bin/clang++")
+
+SET (CMAKE_C_COMPILER             "/usr/bin/gcc-4.8")
+SET (CMAKE_CXX_COMPILER             "/usr/bin/g++-4.8")
+
+
 cmake_minimum_required(VERSION 2.8.0)
 project(lockfree_bench)
 
@@ -26,7 +33,7 @@ else(Boost_FOUND)
 endif(Boost_FOUND)
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -mtune=native -fno-strict-aliasing -march=native -O2 -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -mtune=native -fno-strict-aliasing -march=native -O0 -pthread")
 
 
 

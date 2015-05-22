@@ -70,8 +70,8 @@ private:
 public:
 
     HP(
-              int pointersPerThread,
-              int maxThreadsCnt
+              int pointersPerThread = 8,
+              int maxThreadsCnt = 256
         );
 
     ~HP();

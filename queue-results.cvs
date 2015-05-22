@@ -1,3 +1,2 @@
 "threads cnt",lock-free queue",lock-free queue with pool",boost::lockfree::queue",cds::container::msqueue",cds::container::fcqueue",std::queue with mutex",std::queue with spin-lock"
-1,1.3323e+06,6.07803e+06,5.40999e+06,2.29147e+06,4.67063e+06,6.3208e+06,5.69954e+06
-5,1.49928e+06,4.87064e+06,3.74904e+06,2.54988e+06,4.11088e+06,3.73824e+06,3.99466e+06
+32,0.00399902,0.00518062,0.00204194,0.00396859,0.00103902,0.00550144,0.00755639
