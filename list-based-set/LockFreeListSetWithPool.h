@@ -16,7 +16,7 @@
 
 namespace atm = boost;
 
-template<typename Item, typename GC, typename Backoff = ExponentialBackoff<>>
+template<typename Item, typename GC, typename Backoff = NoBackoff>
 class LockFreeListSetWithPool {
 
     struct ListNode;
