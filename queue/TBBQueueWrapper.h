@@ -8,7 +8,7 @@
 #include <tbb/concurrent_queue.h>
 #include <tbb/scalable_allocator.h>
 
-template<typename Item, typename Allocator>
+template<typename Item, typename Allocator=tbb::scalable_allocator<Item>>
 class TBBQueueWrapper {
 private:
     tbb::concurrent_queue<Item, Allocator> q;
