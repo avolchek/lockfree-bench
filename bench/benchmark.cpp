@@ -428,10 +428,10 @@ void benchmarkListSet() {
 
         cvsFile << endl;
 
-        if (threadCnt > 16) {
-            threadCnt += 16;
-        } else if (threadCnt > 128) {
+        if (threadCnt > 128) {
             threadCnt += 32;
+        } else if (threadCnt > 32) {
+            threadCnt += 16;
         } else {
             threadCnt += 4;
         }
@@ -480,10 +480,10 @@ void benchmarkQueueLatency() {
 
         cvsFile << endl;
 
-        if (threadCnt > 16) {
-            threadCnt += 32;
-        } else if (threadCnt > 128) {
+        if (threadCnt > 128) {
             threadCnt += 64;
+        } else if (threadCnt > 32) {
+            threadCnt += 32;
         } else {
             threadCnt += 8;
         }
@@ -530,10 +530,10 @@ void benchmarkQueue() {
 
         cvsFile << endl;
 
-        if (threadCnt > 16) {
-            threadCnt += 16;
-        } else if (threadCnt > 128) {
+        if (threadCnt > 128) {
             threadCnt += 32;
+        } else if (threadCnt > 32) {
+            threadCnt += 16;
         } else {
             threadCnt += 4;
         }
@@ -578,10 +578,10 @@ void benchmarkSet() {
 
         cvsFile << endl;
 
-        if (threadCnt > 16) {
-            threadCnt += 16;
-        } else if (threadCnt > 128) {
+        if (threadCnt > 128) {
             threadCnt += 32;
+        } else if (threadCnt > 32) {
+            threadCnt += 16;
         } else {
             threadCnt += 4;
         }
@@ -626,10 +626,10 @@ void benchmarkSetLatency() {
 
         cvsFile << endl;
 
-        if (threadCnt > 16) {
-            threadCnt += 32;
-        } else if (threadCnt > 128) {
+        if (threadCnt > 128) {
             threadCnt += 64;
+        } else if (threadCnt > 32) {
+            threadCnt += 32;
         } else {
             threadCnt += 8;
         }
@@ -652,8 +652,8 @@ int main() {
 
 
 
-        benchmarkListSet();
-        benchmarkQueue();
+       // benchmarkListSet();
+        //benchmarkQueue();
         benchmarkQueueLatency();
         benchmarkSetLatency();
         benchmarkSet();
