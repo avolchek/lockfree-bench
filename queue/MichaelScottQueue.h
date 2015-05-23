@@ -123,8 +123,9 @@ public:
                     if (head.compare_exchange_weak(fst, nxt, std::memory_order_release, std::memory_order_relaxed)) {
                         GC::getInstance()->retirePtr(fst, [](void *p) { delete (ListNode*)p; });
                         releaseGuards();
-                        return true;
                     }
+
+                    return true;
                 }
             }
 

@@ -142,8 +142,9 @@ public:
                     res = nxt->data;
                     if (head.compare_exchange_strong(fst, nxt, std::memory_order_release, std::memory_order_relaxed)) {
                         retireNode(fst);
-                        return true;
                     }
+
+                    return true;
                 }
             }
 
