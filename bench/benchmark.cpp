@@ -642,11 +642,11 @@ int main() {
 
 
 
-        benchmarkListSet();
-        //benchmarkQueue();
-        //benchmarkQueueLatency();
-       /// benchmarkSetLatency();
-       // benchmarkSet();
+        //benchmarkListSet();
+        benchmarkQueue();
+        benchmarkQueueLatency();
+        benchmarkSetLatency();
+        benchmarkSet();
 
     }
 
