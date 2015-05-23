@@ -33,7 +33,7 @@ else(Boost_FOUND)
 endif(Boost_FOUND)
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -mtune=native -fno-strict-aliasing -march=native -O0 -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -mtune=native -fno-strict-aliasing -march=native -O3 -pthread")
 
 
 
