@@ -402,6 +402,7 @@ void benchmarkListSet() {
             make_pair("coarse-lock list", testList<CoarseLockListSet<int, std::mutex>>),
             make_pair("coarse-lock list with spin-lock", testList<CoarseLockListSet<int, SpinLock>>),
             make_pair("lock-free list", testList<LockFreeListSet<int, HP>>),
+            make_pair("lock-free list with pool", testList<LockFreeListSetWithPool<int, HP>>),
             make_pair("cds::container::michaellist", testList<LibCDSMichaelListWrapper<int>>),
             make_pair("optimistic-lock lazy delete", testList<OptimisticLockListSet<int, HP, std::mutex>>),
             make_pair("optimistic-lock lazy delete with spin-lock list", testList<OptimisticLockListSet<int, HP, SpinLock>>),
@@ -414,7 +415,7 @@ void benchmarkListSet() {
     cvsFile << endl;
 
 
-    for (int threadCnt = 1; threadCnt <= 256; ) {
+    for (int threadCnt = 1; threadCnt <= 128; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
@@ -464,7 +465,7 @@ void benchmarkQueueLatency() {
     cvsFile << endl;
 
 
-    for (int threadCnt = 1; threadCnt <= 256; ) {
+    for (int threadCnt = 1; threadCnt <= 128; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
@@ -512,7 +513,7 @@ void benchmarkQueue() {
     cvsFile << endl;
 
 
-    for (int threadCnt = 1; threadCnt <= 256; ) {
+    for (int threadCnt = 1; threadCnt <= 128; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
@@ -556,9 +557,9 @@ void benchmarkSet() {
     cvsFile << endl;
 
     const int maxItemsCount = 1000000;
-    const int maxLoadFactor = 5;
+    const int maxLoadFactor = 3;
 
-    for (int threadCnt = 1; threadCnt <= 256; ) {
+    for (int threadCnt = 1; threadCnt <= 128; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
@@ -604,7 +605,7 @@ void benchmarkSetLatency() {
     const int maxItemsCount = 1000000;
     const int maxLoadFactor = 3;
 
-    for (int threadCnt = 1; threadCnt <= 256; ) {
+    for (int threadCnt = 1; threadCnt <= 128; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
