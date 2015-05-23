@@ -110,7 +110,7 @@ void workerListProc(Container *c, int *operationsCount) {
     int a = 0;
     while (isRunning.load(std::memory_order_relaxed)) {
         int op = rand() % 100;
-        int x = rand();
+        int x = rand() % 20000000;
         if (op < 5) {
             //std::cerr << "add" << std::endl;
             c->add(x);
@@ -143,7 +143,7 @@ double testList(int threadsCnt) {
 
         Container *c = new Container();
 
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 0; i++) {
             c->add(rand());
         }
 
