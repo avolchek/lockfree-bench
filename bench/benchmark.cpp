@@ -312,9 +312,9 @@ double testQueueProducerConsumer(int threadsCnt) {
         isRunning.store(false, std::memory_order_release);
 
         std::vector<std::thread> th;
-        std::vector<int> opCnt(threadsCnt * 2, 0);
+        std::vector<int> opCnt(threadsCnt, 0);
 
-        for (int i = 0; i < threadsCnt * 2; i++) {
+        for (int i = 0; i < threadsCnt; i++) {
             th.push_back(std::thread(workerQueueProducerConsumerProc<Container>, c, &opCnt[i], bool(i & 1)));
         }
 
@@ -327,7 +327,7 @@ double testQueueProducerConsumer(int threadsCnt) {
         double opSum = 0.0;
         double latencySum = 0.0;
 
-        for (int i = 0; i < threadsCnt * 2; i++) {
+        for (int i = 0; i < threadsCnt; i++) {
             th[i].join();
             opSum += opCnt[i];
         }
@@ -595,7 +595,7 @@ void benchmarkQueueProducerConsumer() {
     }
     cvsFile << endl;
 
-    for (int threadCnt = 1; threadCnt <= 64; ) {
+    for (int threadCnt = 2; threadCnt <= 64; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
