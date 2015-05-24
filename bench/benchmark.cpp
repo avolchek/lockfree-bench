@@ -49,7 +49,7 @@ void workerStackProc(ST *s, int *operationsCnt) {
 
     while (!isRunning.load(std::memory_order_acquire));
 
-    while (isRunning.load(std::memory_order_relaxed)) {
+    while (isRunning.load(std::memory_order_acquire)) {
         if (rand() & 1) {
             s->push(rand());
         } else {
@@ -105,11 +105,11 @@ void workerListProc(Container *c, int *operationsCount) {
     HP::getInstance()->attachThread();
     cds::threading::Manager::attachThread();
 
-    while (!isRunning.load(std::memory_order_relaxed));
+    while (!isRunning.load(std::memory_order_acquire));
 
     std::vector<int> added;
     int a = 0;
-    while (isRunning.load(std::memory_order_relaxed)) {
+    while (isRunning.load(std::memory_order_acquire)) {
         int op = rand() % 100;
         int x = rand() % 20000000;
         if (op < 5) {
@@ -177,11 +177,11 @@ void workerQueueProc(Container *c, int *operationsCnt) {
     HP::getInstance()->attachThread();
     cds::threading::Manager::attachThread();
 
-    while (!isRunning.load(std::memory_order_relaxed));
+    while (!isRunning.load(std::memory_order_acquire));
 
     using namespace std::chrono;
 
-    while (isRunning.load(std::memory_order_relaxed)) {
+    while (isRunning.load(std::memory_order_acquire)) {
         int op = rand() & 1;
         int x = rand();
 
@@ -390,7 +390,7 @@ void benchmarkListSet() {
         } else if (threadCnt > 32) {
             threadCnt += 16;
         } else {
-            threadCnt += 4;
+            threadCnt += 2;
         }
     }
 
