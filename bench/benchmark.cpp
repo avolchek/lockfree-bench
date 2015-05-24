@@ -470,7 +470,7 @@ void benchmarkSet() {
     const int maxItemsCount = 1000000;
     const int maxLoadFactor = 3;
 
-    for (int threadCnt = 16; threadCnt <= 128; ) {
+    for (int threadCnt = 1; threadCnt <= 128; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
