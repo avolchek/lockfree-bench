@@ -286,7 +286,7 @@ double testSet(int threadsCnt, int maxItemsCount, int maxLoadFactor) {
     const int testIter = 2;
     const int runtime = 2;
 
-    const int initialItemsCount = 100000;
+    const int initialItemsCount = 1000000;
 
 
     double resOp = 0.0;
