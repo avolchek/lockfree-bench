@@ -42,6 +42,7 @@
 
 std::atomic<bool> isRunning;
 
+
 template<typename ST>
 void workerStackProc(ST *s, int *operationsCnt) {
     HP::getInstance()->attachThread();
@@ -172,7 +173,7 @@ double testList(int threadsCnt) {
 }
 
 template<typename Container>
-void workerQueueProc(Container *c, int *operationsCnt, double *latency) {
+void workerQueueProc(Container *c, int *operationsCnt) {
     HP::getInstance()->attachThread();
     cds::threading::Manager::attachThread();
 
@@ -184,17 +185,10 @@ void workerQueueProc(Container *c, int *operationsCnt, double *latency) {
         int op = rand() & 1;
         int x = rand();
 
-
         if (op) {
-            steady_clock::time_point start = steady_clock::now();
             c->push(x);
-            steady_clock::time_point end = steady_clock::now();
-            (*latency) += duration_cast<duration<double>>(end - start).count();
         } else {
-            steady_clock::time_point start = steady_clock::now();
             c->pop(x);
-            steady_clock::time_point end = steady_clock::now();
-            (*latency) += duration_cast<duration<double>>(end - start).count();
         }
         (*operationsCnt)++;
     }
@@ -202,104 +196,12 @@ void workerQueueProc(Container *c, int *operationsCnt, double *latency) {
     cds::threading::Manager::detachThread();
 }
 
-template<typename Container>
-void workerQueueProducerConsumerProc(Container *c, int *operationsCnt, int op) {
-    HP::getInstance()->attachThread();
-    cds::threading::Manager::attachThread();
-
-    while (!isRunning.load(std::memory_order_relaxed));
-
-    using namespace std::chrono;
-
-    while (isRunning.load(std::memory_order_relaxed)) {
-        int x = rand();
-
-        //std::cerr << std::this_thread::get_id() << std::endl;
-        if (op) {
-            //steady_clock::time_point start = steady_clock::now();
-            c->push(x);
-            //steady_clock::time_point end = steady_clock::now();
-            //(*latency) += duration_cast<duration<double>>(end - start).count();
-            (*operationsCnt)++;
-        } else {
-            //steady_clock::time_point start = steady_clock::now();
-            if (c->pop(x)) {
-                (*operationsCnt)++;
-            }
-            //steady_clock::time_point end = steady_clock::now();
-            //(*latency) += duration_cast<duration<double>>(end - start).count();
-        }
-    }
-
-    cds::threading::Manager::detachThread();
-}
 
 template<typename Container>
-std::pair<double, double> testQueue(int threadsCnt) {
+double testQueue(int threadsCnt) {
     const int testIter = 2;
     const int runtime = 2;
-
-    double resOps = 0.0;
-    double resLatency = 0.0;
-
-    std::vector<double> latencySamples;
-
-    for (int iter = 0; iter < testIter; iter++) {
-        std::cerr << "iter " << iter << std::endl;
-        HP::getInstance()->attachThread();
-
-        Container *c = new Container();
-
-        isRunning.store(false, std::memory_order_release);
-
-        std::vector<std::thread> th;
-        std::vector<int> opCnt(threadsCnt, 0);
-        std::vector<double> latency(threadsCnt, 0);
-        for (int i = 0; i < threadsCnt; i++) {
-            th.push_back(std::thread(workerQueueProc<Container>, c, &opCnt[i], &latency[i]));
-        }
-
-        usleep(300);
-
-        isRunning.store(true, std::memory_order_seq_cst);
-        sleep(runtime);
-        isRunning.store(false, std::memory_order_seq_cst);
-
-        double opSum = 0.0;
-        double latencySum = 0.0;
-
-        for (int i = 0; i < threadsCnt; i++) {
-            th[i].join();
-            opSum += opCnt[i];
-            latencySum += latency[i];
-        }
-
-        resOps += opSum;
-        resLatency += latencySum / opSum;
-
-        latencySamples.push_back(latencySum / opSum);
-
-        delete c;
-        HP::getInstance()->detachAllThreads();
-    }
-
-    resOps /= runtime * testIter;
-    resLatency /= testIter;
-
-    double variance = 0.0;
-    for (auto x : latencySamples) {
-        variance = (resLatency - x) * (resLatency - x);
-    }
-
-    std::cerr << "latency standard deviation is " << sqrt(variance) << " (" << (sqrt(variance) / resLatency * 100.0) << " %)" << std::endl;
-
-    return std::make_pair(resOps, resLatency);
-}
-
-template<typename Container>
-double testQueueProducerConsumer(int threadsCnt) {
-    const int testIter = 2;
-    const int runtime = 2;
+    const int initialElementsCount = 10000;
 
     double resOps = 0.0;
 
@@ -309,13 +211,17 @@ double testQueueProducerConsumer(int threadsCnt) {
 
         Container *c = new Container();
 
+        for (int i = 0; i < initialElementsCount; ++i) {
+            c->push(rand());
+        }
+
         isRunning.store(false, std::memory_order_release);
 
         std::vector<std::thread> th;
         std::vector<int> opCnt(threadsCnt, 0);
 
         for (int i = 0; i < threadsCnt; i++) {
-            th.push_back(std::thread(workerQueueProducerConsumerProc<Container>, c, &opCnt[i], bool(i & 1)));
+            th.push_back(std::thread(workerQueueProc<Container>, c, &opCnt[i]));
         }
 
         usleep(300);
@@ -333,7 +239,6 @@ double testQueueProducerConsumer(int threadsCnt) {
         }
 
         resOps += opSum;
-
         delete c;
         HP::getInstance()->detachAllThreads();
     }
@@ -345,7 +250,7 @@ double testQueueProducerConsumer(int threadsCnt) {
 
 
 template<typename Container>
-void workerSetProc(Container *c, int *operationsCnt, double *latency) {
+void workerSetProc(Container *c, int *operationsCnt) {
     HP::getInstance()->attachThread();
     cds::threading::Manager::attachThread();
     std::vector<int> added;
@@ -359,33 +264,17 @@ void workerSetProc(Container *c, int *operationsCnt, double *latency) {
         int x = rand();
 
         if (op < 5) {
-            steady_clock::time_point start = steady_clock::now();
-
             added.push_back(x);
             c->insert(x);
-
-            steady_clock::time_point end = steady_clock::now();
-            (*latency) += duration_cast<duration<double>>(end - start).count();
-        } else if (op < 5) {
+        } else if (op < 10) {
             if (!added.empty()) {
-                steady_clock::time_point start = steady_clock::now();
-
                 c->erase(added.back());
                 added.pop_back();
-
-                steady_clock::time_point end = steady_clock::now();
-                (*latency) += duration_cast<duration<double>>(end - start).count();
             }
         } else {
-            steady_clock::time_point start = steady_clock::now();
-
             c->contains(x);
-
-            steady_clock::time_point end = steady_clock::now();
-            (*latency) += duration_cast<duration<double>>(end - start).count();
         }
 
-        usleep(5);
         (*operationsCnt)++;
     }
 
@@ -393,14 +282,14 @@ void workerSetProc(Container *c, int *operationsCnt, double *latency) {
 }
 
 template<typename Container>
-std::pair<double, double> testSet(int threadsCnt, int maxItemsCount, int maxLoadFactor) {
+double testSet(int threadsCnt, int maxItemsCount, int maxLoadFactor) {
     const int testIter = 2;
     const int runtime = 2;
+
     const int initialItemsCount = 100000;
 
+
     double resOp = 0.0;
-    double resLatency = 0.0;
-    std::vector<double> latencySamples;
 
     for (int iter = 0; iter < testIter; iter++) {
         //std::cerr << "iter " << iter << std::endl;
@@ -416,12 +305,12 @@ std::pair<double, double> testSet(int threadsCnt, int maxItemsCount, int maxLoad
 
         std::vector<std::thread> th;
         std::vector<int> opCnt(threadsCnt, 0);
-        std::vector<double> latency(threadsCnt, 0);
+
         for (int i = 0; i < threadsCnt; i++) {
-            th.push_back(std::thread(workerSetProc<Container>, c, &opCnt[i], &latency[i]));
+            th.push_back(std::thread(workerSetProc<Container>, c, &opCnt[i]));
         }
 
-        usleep(300);
+        sleep(1);
 
         isRunning.store(true, std::memory_order_seq_cst);
         sleep(runtime);
@@ -432,29 +321,18 @@ std::pair<double, double> testSet(int threadsCnt, int maxItemsCount, int maxLoad
         for (int i = 0; i < threadsCnt; i++) {
             th[i].join();
             opSum += opCnt[i];
-            latencySum += latency[i];
         }
 
         resOp += opSum;
-        resLatency += latencySum / opSum;
-
-        latencySamples.push_back(latencySum / opSum);
 
         delete c;
         HP::getInstance()->detachAllThreads();
     }
 
     resOp /= runtime / testIter;
-    resLatency /= testIter;
 
-    double variance = 0;
-    for (auto x : latencySamples) {
-        variance += (resLatency - x) * (resLatency - x);
-    }
 
-    std::cerr << "latency standard deviation is " << sqrt(variance) << " (" << (sqrt(variance) / resLatency * 100.0) << " %)" << std::endl;
-
-    return std::make_pair(resOp, resLatency);
+    return resOp;
 }
 
 
@@ -519,107 +397,6 @@ void benchmarkListSet() {
     cvsFile.close();
 }
 
-void benchmarkQueueLatency() {
-    using namespace std;
-    using namespace std::chrono;
-
-    ofstream cvsFile("queue-results-latency.cvs");
-
-    typedef int ItemType;
-    vector< pair<string, function<std::pair<double, double>(int)>>> testData {
-            make_pair("lock-free queue", testQueue<MichaelScottQueue<ItemType, HP, ConstantBackoff<>>>),
-            make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<ItemType, HP, ConstantBackoff<>>>),
-            make_pair("lock-free queue with pool and exponential backoff", testQueue<MSQueueWithPool<ItemType, HP, ExponentialBackoff<>>>),
-            make_pair("lock-free queue with pool and no backoff", testQueue<MSQueueWithPool<ItemType, HP, NoBackoff>>),
-            make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<ItemType>>),
-            make_pair("cds::container::msqueue", testQueue<cds::container::MSQueue<cds::gc::HP, ItemType>>),
-            make_pair("cds::container::fcqueue", testQueue<cds::container::FCQueue<ItemType>>),
-            make_pair("tbb::concurent_queue", testQueue<TBBQueueWrapper<ItemType>>),
-            make_pair("std::queue with mutex", testQueue<StdQueueWithLock<ItemType, std::mutex>>),
-            make_pair("std::queue with spin-lock", testQueue<StdQueueWithLock<ItemType, SpinLock>>),
-    };
-
-    cvsFile << '\"' << "threads cnt" << '\"';
-    for (auto item : testData) {
-        cvsFile << "," << item.first << "\"";
-    }
-    cvsFile << endl;
-
-
-    for (int threadCnt = 1; threadCnt <= 128; ) {
-        printf("thread cnt - %d\n", threadCnt);
-        cvsFile << threadCnt;
-
-        for (auto item : testData) {
-            printf("testing %s...\n", item.first.c_str());
-            double res = item.second(threadCnt).second;
-            cerr << res << endl;
-            cvsFile << ',' << res;
-        }
-
-        cvsFile << endl;
-
-        if (threadCnt > 128) {
-            threadCnt += 64;
-        } else if (threadCnt > 32) {
-            threadCnt += 32;
-        } else {
-            threadCnt += 8;
-        }
-    }
-
-    cvsFile.close();
-}
-
-void benchmarkQueueProducerConsumer() {
-
-    using namespace std;
-
-    ofstream cvsFile("queue-results-producer-consumer.cvs");
-
-    typedef int ItemType;
-    vector< pair<string, function<double(int)>>> testData {
-            make_pair("lock-free queue", testQueueProducerConsumer<MichaelScottQueue<ItemType, HP, ConstantBackoff<>>>),
-            make_pair("lock-free queue with pool", testQueueProducerConsumer<MSQueueWithPool<ItemType, HP>>),
-            make_pair("boost::lockfree::queue", testQueueProducerConsumer<BoostLockfreeQueueWrapper<ItemType>>),
-            make_pair("cds::container::msqueue", testQueueProducerConsumer<cds::container::MSQueue<cds::gc::HP, ItemType>>),
-            make_pair("cds::container::fcqueue", testQueueProducerConsumer<cds::container::FCQueue<ItemType>>),
-            make_pair("tbb::concurent_queue", testQueueProducerConsumer<TBBQueueWrapper<ItemType>>),
-            make_pair("std::queue with mutex", testQueueProducerConsumer<StdQueueWithLock<ItemType, std::mutex>>),
-            make_pair("std::queue with spin-lock", testQueueProducerConsumer<StdQueueWithLock<ItemType, SpinLock>>),
-    };
-
-    cvsFile << '\"' << "threads cnt" << '\"';
-    for (auto item : testData) {
-        cvsFile << "," << item.first << "\"";
-    }
-    cvsFile << endl;
-
-    for (int threadCnt = 2; threadCnt <= 64; ) {
-        printf("thread cnt - %d\n", threadCnt);
-        cvsFile << threadCnt;
-
-        for (auto item : testData) {
-            printf("testing %s...\n", item.first.c_str());
-            double res = item.second(threadCnt);
-            cerr << res << endl;
-            cvsFile << ',' << res;
-        }
-
-        cvsFile << endl;
-
-        if (threadCnt > 128) {
-            threadCnt += 8;
-        } else if (threadCnt > 32) {
-            threadCnt += 8;
-        } else {
-            threadCnt += 2;
-        }
-    }
-
-    cvsFile.close();
-}
-
 void benchmarkQueue() {
 
     using namespace std;
@@ -627,7 +404,7 @@ void benchmarkQueue() {
     ofstream cvsFile("queue-results.cvs");
 
     typedef int ItemType;
-    vector< pair<string, function<std::pair<double, double>(int)>>> testData {
+    vector< pair<string, function<double(int)>>> testData {
             make_pair("lock-free queue", testQueue<MichaelScottQueue<ItemType, HP, ConstantBackoff<>>>),
             make_pair("lock-free queue with pool", testQueue<MSQueueWithPool<ItemType, HP>>),
             make_pair("boost::lockfree::queue", testQueue<BoostLockfreeQueueWrapper<ItemType>>),
@@ -651,7 +428,7 @@ void benchmarkQueue() {
 
         for (auto item : testData) {
             printf("testing %s...\n", item.first.c_str());
-            double res = item.second(threadCnt).first;
+            double res = item.second(threadCnt);
             cerr << res << endl;
             cvsFile << ',' << res;
         }
@@ -675,7 +452,7 @@ void benchmarkSet() {
 
     ofstream cvsFile("set-results.cvs");
 
-    vector< pair<string, function<std::pair<double, double>(int, int, int)>>> testData {
+    vector< pair<string, function<double(int, int, int)>>> testData {
             make_pair("Michael hash-table", testSet<MichaelHashTable<long>>),
             make_pair("Michael hash-table with coarse locking lists", testSet<MichaelHashTable<long, CoarseLockListSet<long, SpinLock>>>),
             make_pair("std::unordered_set with mutex", testSet<StdUnorderedSetWrapper<long, std::mutex>>),
@@ -690,7 +467,7 @@ void benchmarkSet() {
     }
     cvsFile << endl;
 
-    const int maxItemsCount = 10000;
+    const int maxItemsCount = 1000000;
     const int maxLoadFactor = 3;
 
     for (int threadCnt = 1; threadCnt <= 256; ) {
@@ -699,7 +476,7 @@ void benchmarkSet() {
 
         for (auto item : testData) {
             printf("testing %s...\n", item.first.c_str());
-            double res = item.second(threadCnt, maxItemsCount, maxLoadFactor).first;
+            double res = item.second(threadCnt, maxItemsCount, maxLoadFactor);
             cerr << res << endl;
             cvsFile << ',' << res;
         }
@@ -712,54 +489,6 @@ void benchmarkSet() {
             threadCnt += 16;
         } else {
             threadCnt += 4;
-        }
-    }
-
-    cvsFile.close();
-}
-
-void benchmarkSetLatency() {
-    using namespace std;
-
-    ofstream cvsFile("set-results-latency.cvs");
-
-    vector< pair<string, function<std::pair<double, double>(int, int, int)>>> testData {
-            make_pair("Michael hash-table", testSet<MichaelHashTable<long>>),
-            make_pair("Michael hash-table with coarse locking lists", testSet<MichaelHashTable<long, CoarseLockListSet<long, SpinLock>>>),
-            make_pair("std::unordered_set with mutex", testSet<StdUnorderedSetWrapper<long, std::mutex>>),
-            make_pair("std::unordered_set with spin-lock", testSet<StdUnorderedSetWrapper<long, SpinLock>>),
-            make_pair("tbb::concurent_hash_map", testSet<TBBConcurentHashTableWrapper<long>>),
-            make_pair("cds::michael_set", testSet<CDSMichaelSetWrapper<long>>),
-    };
-
-    cvsFile << '\"' << "threads cnt" << '\"';
-    for (auto item : testData) {
-        cvsFile << "," << item.first << "\"";
-    }
-    cvsFile << endl;
-
-    const int maxItemsCount = 10000;
-    const int maxLoadFactor = 3;
-
-    for (int threadCnt = 1; threadCnt <= 256; ) {
-        printf("thread cnt - %d\n", threadCnt);
-        cvsFile << threadCnt;
-
-        for (auto item : testData) {
-            printf("testing %s...\n", item.first.c_str());
-            double res = item.second(threadCnt, maxItemsCount, maxLoadFactor).second;
-            cerr << res << endl;
-            cvsFile << ',' << res;
-        }
-
-        cvsFile << endl;
-
-        if (threadCnt > 128) {
-            threadCnt += 64;
-        } else if (threadCnt > 32) {
-            threadCnt += 32;
-        } else {
-            threadCnt += 8;
         }
     }
 
@@ -779,14 +508,9 @@ int main() {
         cds::threading::Manager::attachThread();
 
 
-
-       // benchmarkListSet();
-        //benchmarkQueue();
-        //benchmarkQueueLatency();
-        benchmarkQueueProducerConsumer();
-        //benchmarkSetLatency();
-        //benchmarkSet();
-
+        benchmarkListSet();
+        benchmarkQueue();
+        benchmarkSet();
     }
 
     cds::Terminate();
