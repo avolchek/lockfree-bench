@@ -453,12 +453,17 @@ void benchmarkSet() {
     ofstream cvsFile("set-results.cvs");
 
     vector< pair<string, function<double(int, int, int)>>> testData {
-            make_pair("Michael hash-table", testSet<MichaelHashTable<long>>),
-            make_pair("Michael hash-table with coarse locking lists", testSet<MichaelHashTable<long, CoarseLockListSet<long, SpinLock>>>),
-            make_pair("std::unordered_set with mutex", testSet<StdUnorderedSetWrapper<long, std::mutex>>),
-            make_pair("std::unordered_set with spin-lock", testSet<StdUnorderedSetWrapper<long, SpinLock>>),
-            make_pair("tbb::concurent_hash_map", testSet<TBBConcurentHashTableWrapper<long>>),
-            make_pair("cds::michael_set", testSet<CDSMichaelSetWrapper<long>>),
+            make_pair("Michael hash-table no backoff", testSet<MichaelHashTable<long,
+                    LockFreeListSetWithPool<long, HP, NoBackoff>>>),
+            make_pair("Michael hash-table constant backoff", testSet<MichaelHashTable<long,
+                    LockFreeListSetWithPool<long, HP, ConstantBackoff<>>>>),
+            make_pair("Michael hash-table exponential backoff", testSet<MichaelHashTable<long,
+                    LockFreeListSetWithPool<long, HP, ExponentialBackoff<>>>>),
+            //make_pair("Michael hash-table with coarse locking lists", testSet<MichaelHashTable<long, CoarseLockListSet<long, SpinLock>>>),
+            //make_pair("std::unordered_set with mutex", testSet<StdUnorderedSetWrapper<long, std::mutex>>),
+            //make_pair("std::unordered_set with spin-lock", testSet<StdUnorderedSetWrapper<long, SpinLock>>),
+            //make_pair("tbb::concurent_hash_map", testSet<TBBConcurentHashTableWrapper<long>>),
+            //make_pair("cds::michael_set", testSet<CDSMichaelSetWrapper<long>>),
     };
 
     cvsFile << '\"' << "threads cnt" << '\"';
@@ -470,7 +475,7 @@ void benchmarkSet() {
     const int maxItemsCount = 1000000;
     const int maxLoadFactor = 3;
 
-    for (int threadCnt = 1; threadCnt <= 64; ) {
+    for (int threadCnt = 4; threadCnt <= 64; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
@@ -488,7 +493,7 @@ void benchmarkSet() {
         } else if (threadCnt > 32) {
             threadCnt += 16;
         } else {
-            threadCnt += 4;
+            threadCnt += 8;
         }
     }
 
@@ -508,8 +513,8 @@ int main() {
         cds::threading::Manager::attachThread();
 
 
-        benchmarkListSet();
-        benchmarkQueue();
+        //benchmarkListSet();
+        //benchmarkQueue();
         benchmarkSet();
     }
 
