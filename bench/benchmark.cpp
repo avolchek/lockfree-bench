@@ -390,7 +390,7 @@ void benchmarkListSet() {
         } else if (threadCnt > 32) {
             threadCnt += 16;
         } else {
-            threadCnt += 2;
+            threadCnt += 4;
         }
     }
 
