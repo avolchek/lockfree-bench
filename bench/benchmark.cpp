@@ -454,11 +454,11 @@ void benchmarkSet() {
 
     vector< pair<string, function<double(int, int, int)>>> testData {
             make_pair("Michael hash-table", testSet<MichaelHashTable<long>>),
-            //make_pair("Michael hash-table with coarse locking lists", testSet<MichaelHashTable<long, CoarseLockListSet<long, SpinLock>>>),
+            make_pair("Michael hash-table with coarse locking lists", testSet<MichaelHashTable<long, CoarseLockListSet<long, SpinLock>>>),
             make_pair("std::unordered_set with mutex", testSet<StdUnorderedSetWrapper<long, std::mutex>>),
             make_pair("std::unordered_set with spin-lock", testSet<StdUnorderedSetWrapper<long, SpinLock>>),
-            //make_pair("tbb::concurent_hash_map", testSet<TBBConcurentHashTableWrapper<long>>),
-            //make_pair("cds::michael_set", testSet<CDSMichaelSetWrapper<long>>),
+            make_pair("tbb::concurent_hash_map", testSet<TBBConcurentHashTableWrapper<long>>),
+            make_pair("cds::michael_set", testSet<CDSMichaelSetWrapper<long>>),
     };
 
     cvsFile << '\"' << "threads cnt" << '\"';
@@ -508,8 +508,8 @@ int main() {
         cds::threading::Manager::attachThread();
 
 
-        //benchmarkListSet();
-        //benchmarkQueue();
+        benchmarkListSet();
+        benchmarkQueue();
         benchmarkSet();
     }
 
