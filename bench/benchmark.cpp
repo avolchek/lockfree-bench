@@ -263,10 +263,10 @@ void workerSetProc(Container *c, int *operationsCnt) {
         int op = rand() % 100;
         int x = rand();
 
-        if (op < 20) {
+        if (op < 5) {
             added.push_back(x);
             c->insert(x);
-        } else if (op < 40) {
+        } else if (op < 10) {
             if (!added.empty()) {
                 c->erase(added.back());
                 added.pop_back();
