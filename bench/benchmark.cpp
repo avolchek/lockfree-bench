@@ -460,7 +460,7 @@ void benchmarkSet() {
             make_pair("Michael hash-table exponential backoff", testSet<MichaelHashTable<long,
                     LockFreeListSetWithPool<long, HP, ExponentialBackoff<>>>>),
             //make_pair("Michael hash-table with coarse locking lists", testSet<MichaelHashTable<long, CoarseLockListSet<long, SpinLock>>>),
-            //make_pair("std::unordered_set with mutex", testSet<StdUnorderedSetWrapper<long, std::mutex>>),
+            make_pair("std::unordered_set with mutex", testSet<StdUnorderedSetWrapper<long, std::mutex>>),
             //make_pair("std::unordered_set with spin-lock", testSet<StdUnorderedSetWrapper<long, SpinLock>>),
             //make_pair("tbb::concurent_hash_map", testSet<TBBConcurentHashTableWrapper<long>>),
             //make_pair("cds::michael_set", testSet<CDSMichaelSetWrapper<long>>),
