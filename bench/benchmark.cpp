@@ -372,7 +372,7 @@ void benchmarkListSet() {
     cvsFile << endl;
 
 
-    for (int threadCnt = 1; threadCnt <= 128; ) {
+    for (int threadCnt = 1; threadCnt <= 64; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
@@ -422,7 +422,7 @@ void benchmarkQueue() {
     cvsFile << endl;
 
 
-    for (int threadCnt = 1; threadCnt <= 128; ) {
+    for (int threadCnt = 1; threadCnt <= 64; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
@@ -470,7 +470,7 @@ void benchmarkSet() {
     const int maxItemsCount = 1000000;
     const int maxLoadFactor = 3;
 
-    for (int threadCnt = 1; threadCnt <= 128; ) {
+    for (int threadCnt = 1; threadCnt <= 64; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
