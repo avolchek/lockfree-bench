@@ -263,10 +263,10 @@ void workerSetProc(Container *c, int *operationsCnt) {
         int op = rand() % 100;
         int x = rand();
 
-        if (op < 5) {
+        if (op < 20) {
             added.push_back(x);
             c->insert(x);
-        } else if (op < 10) {
+        } else if (op < 40) {
             if (!added.empty()) {
                 c->erase(added.back());
                 added.pop_back();
@@ -470,7 +470,7 @@ void benchmarkSet() {
     const int maxItemsCount = 1000000;
     const int maxLoadFactor = 3;
 
-    for (int threadCnt = 1; threadCnt <= 256; ) {
+    for (int threadCnt = 16; threadCnt <= 256; ) {
         printf("thread cnt - %d\n", threadCnt);
         cvsFile << threadCnt;
 
@@ -508,8 +508,8 @@ int main() {
         cds::threading::Manager::attachThread();
 
 
-        benchmarkListSet();
-        benchmarkQueue();
+        //benchmarkListSet();
+        //benchmarkQueue();
         benchmarkSet();
     }
 
