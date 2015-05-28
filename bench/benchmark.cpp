@@ -498,7 +498,14 @@ void benchmarkSet() {
 int main() {
     HP::initInstance();
 
+    std::unordered_set<int> s;
+    for (int i = 0; i < 1000000; i++) {
+        s.insert(rand());
+    }
 
+    std::cout << s.load_factor() << std::endl;
+
+    return 0;
     cds::Initialize();
     {
         cds::gc::HP hpGC;

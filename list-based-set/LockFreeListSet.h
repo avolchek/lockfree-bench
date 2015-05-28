@@ -46,7 +46,6 @@ private:
 
     // TODO optimize me
     std::pair<ListNode*, ListNode* > find(Item x) {
-        int iter = 0;
         Backoff bkf;
         while (true) {
             retry:

@@ -5,16 +5,16 @@
 #ifndef LOCKFREE_BENCH_LOCKFREELISTSETWITHPOOL_H
 #define LOCKFREE_BENCH_LOCKFREELISTSETWITHPOOL_H
 
-//#include <atomic>
-#include <boost/atomic/atomic.hpp>
+#include <atomic>
+//#include <boost/atomic/atomic.hpp>
 #include <algorithm>
-#include <boost/lockfree/detail/tagged_ptr.hpp>
+//#include <boost/lockfree/detail/tagged_ptr.hpp>
 #include "../helpers/TaggedPtr.h"
 #include "../helpers/ConstantBackoff.h"
 #include "../helpers/NoBackoff.h"
 #include "../helpers/ExponentialBackoff.h"
 
-namespace atm = boost;
+namespace atm = std;
 
 template<typename Item, typename GC, typename Backoff = NoBackoff>
 class LockFreeListSetWithPool {
